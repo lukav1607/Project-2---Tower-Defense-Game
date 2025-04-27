@@ -1,21 +1,16 @@
-#include <SFML/Graphics.hpp>
+// ================================================================================================
+// File: main.cpp
+// Author: Luka Vukorepa (https://github.com/lukav1607)
+// Created: April 28, 2025
+// Description: Starting point for the project.
+// ================================================================================================
+// License: MIT License
+// Copyright (c) 2025 Luka Vukorepa
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software to use, modify, and distribute it for educational and portfolio purposes only.
+// ================================================================================================
 
 int main()
 {
-    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
-    window.setFramerateLimit(144);
-
-    while (window.isOpen())
-    {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-            {
-                window.close();
-            }
-        }
-
-        window.clear();
-        window.display();
-    }
+	return 0;
 }
