@@ -17,7 +17,7 @@ FetchContent_MakeAvailable(SFML)
 add_executable(
     "TowerDefenseGame"
     "src/main.cpp"
-)
+    "src/core/Game.cpp")
 target_compile_features("TowerDefenseGame" PRIVATE cxx_std_17)
 target_link_libraries("TowerDefenseGame" PRIVATE SFML::System SFML::Window SFML::Graphics SFML::Audio)
 target_compile_definitions("TowerDefenseGame" PRIVATE SFML_STATIC)

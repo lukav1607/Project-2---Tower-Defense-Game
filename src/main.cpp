@@ -6,11 +6,12 @@
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software to use, modify, and distribute it for educational and portfolio purposes only.
 // ================================================================================================
+
+#include "core/Game.hpp"
 
 int main()
 {
-	return 0;
+	Game game;
+	return game.run();
 }
