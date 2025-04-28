@@ -20,11 +20,11 @@ class Tile
 public:
 	enum class Type
 	{
+		Start,
+		End,
 		Pathable,
 		Buildable,
-		Unassigned,
-		Pathable2,
-		Pathable3
+		Unassigned
 	};
 
 	Tile(Type type, int x, int y, float size);

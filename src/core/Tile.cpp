@@ -22,14 +22,14 @@ Tile::Tile(Type type, int x, int y, float size) :
 	shape.setOutlineColor(sf::Color::White);
 	shape.setOutlineThickness(0.1f);
 
-	if (type == Type::Pathable)
+	if (type == Type::Start)
 		shape.setFillColor(sf::Color(225, 25, 25, 100));
-	else if (type == Type::Buildable)
+	else if (type == Type::End)
 		shape.setFillColor(sf::Color(25, 225, 25, 100));
-	else if (type == Type::Pathable2)
-		shape.setFillColor(sf::Color(25, 25, 225, 100));
-	else if (type == Type::Pathable3)
-		shape.setFillColor(sf::Color(225, 225, 225, 100));
+	else if (type == Type::Pathable)
+		shape.setFillColor(sf::Color(25, 225, 225, 100));
+	else if (type == Type::Buildable)
+		shape.setFillColor(sf::Color(225, 225, 25, 100));
 	else
 		shape.setFillColor(sf::Color(255, 255, 255, 100));
 }

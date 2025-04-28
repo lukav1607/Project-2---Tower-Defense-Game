@@ -58,7 +58,7 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 
 		int currentRow = Utility::randomNumber(1, rows - 2);
 		int currentCol = 0;
-		level[currentRow][currentCol] = Tile(Tile::Type::Pathable, currentCol, currentRow, tileSize);
+		level[currentRow][currentCol] = Tile(Tile::Type::Start, currentCol, currentRow, tileSize);
 
 		int previousTileDirection = 0;
 
@@ -95,7 +95,7 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 				// Ensure it stays within the bounds of the grid and doesn't move
 				// up if at the second-to-top row or down if at the second-to-bottom row
 				currentRow = std::clamp(currentRow + nextTileDirection, 1, rows - 2);
-				level[currentRow][col] = Tile(Tile::Type::Pathable3, col, currentRow, tileSize);
+				level[currentRow][col] = Tile(Tile::Type::Pathable, col, currentRow, tileSize);
 				rowHasPathableTile[currentRow] = true;
 			}
 
@@ -105,14 +105,23 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 				int step = (currentRow > previousRow) ? 1 : -1;
 				for (int row = previousRow; row != currentRow; row += step)
 				{
-					level[row][col] = Tile(Tile::Type::Pathable2, col, row, tileSize);
+					level[row][col] = Tile(Tile::Type::Pathable, col, row, tileSize);
 					rowHasPathableTile[currentRow] = true;
 				}
 			}
 
 			// Fill the current tile with a pathable tile
-			level[currentRow][col] = Tile(Tile::Type::Pathable, col, currentRow, tileSize);
-			rowHasPathableTile[currentRow] = true;
+			if (col != cols - 1)
+			{
+				// Set the current tile as a pathable tile
+				level[currentRow][col] = Tile(Tile::Type::Pathable, col, currentRow, tileSize);
+				rowHasPathableTile[currentRow] = true;
+			}
+			else
+			{
+				// Set the last tile as the end tile
+				level[currentRow][col] = Tile(Tile::Type::End, col, currentRow, tileSize);
+			}
 		}
 
 		// Check if all rows have at least one pathable tile
