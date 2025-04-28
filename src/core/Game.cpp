@@ -56,15 +56,70 @@ void Game::processInput()
 			isRunning = false;
 		}
 	}
+
+	switch (gameState)
+	{
+	case GameState::MainMenu:
+		break;
+
+	case GameState::Gameplay:
+		break;
+
+	case GameState::GameOver:
+		break;
+	}
 }
 
 void Game::update(float fixedTimeStep)
 {
-	
+	switch (gameState)
+	{
+	case GameState::MainMenu:
+		break;
+
+	case GameState::Gameplay:
+		break;
+
+	case GameState::GameOver:
+		break;
+	}
 }
 
 void Game::render(float interpolationFactor)
 {
 	window.clear();
+
+	switch (gameState)
+	{
+	case GameState::MainMenu:
+		break;
+
+	case GameState::Gameplay:
+		break;
+
+	case GameState::GameOver:
+		break;
+	}
+
 	window.display();
+}
+
+void Game::switchGameState(GameState newGameState)
+{
+	// TODO: Implement state transition logic
+
+	switch (gameState)
+	{
+	case GameState::MainMenu:
+		gameState = newGameState;
+		break;
+
+	case GameState::Gameplay:
+		gameState = newGameState;
+		break;
+
+	case GameState::GameOver:
+		gameState = newGameState;
+		break;
+	}
 }

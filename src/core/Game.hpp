@@ -24,6 +24,16 @@ private:
 	void update(float fixedTimeStep);
 	void render(float interpolationFactor);
 
+	enum class GameState
+	{
+		MainMenu,
+		Gameplay,
+		GameOver
+	};
+	GameState gameState;
+
+	void switchGameState(GameState newGameState);
+
 	bool isRunning;
 
 	sf::RenderWindow window;
