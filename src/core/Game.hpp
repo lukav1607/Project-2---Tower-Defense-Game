@@ -12,6 +12,7 @@
 #pragma once
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include "Grid.hpp"
 
 class Game
 {
@@ -37,8 +38,10 @@ private:
 	bool isRunning;
 
 	sf::RenderWindow window;
-	const sf::Vector2u WINDOW_SIZE = { 1600, 1200 };
+	const sf::Vector2u WINDOW_SIZE = { 1200, 1200 };
 	const sf::String WINDOW_TITLE = "Project 2 - Tower Defense Game";
 	unsigned antiAliasingLevel;
 	bool isVSyncEnabled;
+
+	Grid grid;
 };

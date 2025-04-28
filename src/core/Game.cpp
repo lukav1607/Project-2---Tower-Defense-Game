@@ -14,7 +14,9 @@
 Game::Game() :
 	isRunning(true),
 	antiAliasingLevel(8),
-	isVSyncEnabled(true)
+	isVSyncEnabled(true),
+	gameState(GameState::Gameplay),
+	grid(8, 10, 120.f)
 {
 	auto settings = sf::ContextSettings();
 	settings.antiAliasingLevel = antiAliasingLevel;
@@ -95,6 +97,7 @@ void Game::render(float interpolationFactor)
 		break;
 
 	case GameState::Gameplay:
+		grid.render(interpolationFactor, window);
 		break;
 
 	case GameState::GameOver:
