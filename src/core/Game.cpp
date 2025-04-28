@@ -24,26 +24,46 @@ Game::Game() :
 
 int Game::run()
 {
+	const float FIXED_TIME_STEP = 1.f / 60.f; // Fixed time step per update
+	sf::Clock clock;						  // Clock to measure time
+	float timeSinceLastUpdate = 0.f;		  // Time accumulator for fixed timestep
+	float interpolationFactor = 0.f;		  // Interpolation factor for rendering
+
 	while (isRunning)
 	{
+		timeSinceLastUpdate += clock.restart().asSeconds();
+
 		processInput();
-		update();
-		render();
+
+		while (timeSinceLastUpdate >= FIXED_TIME_STEP)
+		{
+			update(FIXED_TIME_STEP);
+			timeSinceLastUpdate -= FIXED_TIME_STEP;
+		}
+
+		interpolationFactor = timeSinceLastUpdate / FIXED_TIME_STEP;
+		render(interpolationFactor);
 	}
 	return 0;
 }
 
 void Game::processInput()
 {
-
+	while (const std::optional event = window.pollEvent())
+	{
+		if (event->is<sf::Event::Closed>())
+		{
+			isRunning = false;
+		}
+	}
 }
 
-void Game::update()
+void Game::update(float fixedTimeStep)
 {
-
+	
 }
 
-void Game::render()
+void Game::render(float interpolationFactor)
 {
 	window.clear();
 	window.display();

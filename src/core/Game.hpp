@@ -21,8 +21,8 @@ public:
 
 private:
 	void processInput();
-	void update();
-	void render();
+	void update(float fixedTimeStep);
+	void render(float interpolationFactor);
 
 	bool isRunning;
 
