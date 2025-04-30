@@ -8,11 +8,10 @@
 // ================================================================================================
 
 #include <iostream>
-
 #include "Enemy.hpp"
 #include "../core/Utility.hpp"
 
-const float Enemy::BASE_SPEED = 150.f;
+const float Enemy::BASE_SPEED = 75.f;
 const int Enemy::BASE_HEALTH = 3;
 
 Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
@@ -73,6 +72,13 @@ void Enemy::render(float interpolationFactor, sf::RenderWindow& window)
 {
 	shape.setPosition(Utility::interpolate(positionPrevious, positionCurrent, interpolationFactor));
 	window.draw(shape);
+}
+
+void Enemy::takeDamage(int damage)
+{
+	health -= damage;
+	if (health <= 0)
+		health = 0;
 }
 
 bool Enemy::isPastCenterOfTile(sf::Vector2f center) const

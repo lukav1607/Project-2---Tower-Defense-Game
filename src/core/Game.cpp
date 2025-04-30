@@ -80,9 +80,34 @@ void Game::processInput()
 		{
 			sf::Vector2i clickedTile = Utility::pixelToTilePosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
 
-			if (grid.isTowerPlaceableAtTile(clickedTile))
+			// Try to find the tower at the clicked tile
+			auto it = std::find_if(towers.begin(), towers.end(), [&](const Tower& tower) 
+					{ return tower.getTilePosition() == clickedTile; });
+
+			// If there is NOT a tower at the clicked tile and the tile is buildable
+			if (it == towers.end() && grid.getTileType(clickedTile) == Tile::Type::Buildable)
 			{
-				grid.placeTower(clickedTile.x, clickedTile.y, std::make_shared<Tower>(Tower::Type::Bullet, clickedTile));
+				//TODO: Show GUI - Select tower type, display tower info
+
+				// Tower type selected:
+					// Player has enough gold to place a tower:
+						towers.emplace_back(Tower::Type::Bullet, clickedTile);
+
+					// Not enough gold:
+						// TODO: GUI - Not enough gold to place a tower
+				// Else:
+					// TODO: Hide GUI
+			}
+			// If there IS a tower at the clicked tile
+			else 
+			{
+				//TODO: GUI - Show tower info, upgrade tower, sell tower
+				
+				// Upgrade tower selected:
+					// Tower level++
+				// Sell tower selected:
+					// gold += tower->attributes[tower->level].sellCost;
+					// Tower is removed from the tile
 			}
 		}
 		break;
@@ -110,7 +135,33 @@ void Game::update(float fixedTimeStep)
 				lives--;
 		}
 
-		enemies.erase(std::remove_if(enemies.begin(), enemies.end(), [](const Enemy& enemy) { return enemy.hasReachedEnd(); }), enemies.end());
+		for (auto& tower : towers)
+		{
+			tower.update(fixedTimeStep, enemies);
+
+			for (auto& enemy : enemies)
+			{
+				if (Utility::distance(tower.getPixelPosition(), enemy.getPixelPosition()) <= tower.attributes[tower.getLevel() - 1].range)
+				{
+					if (tower.canFire())
+					{
+						tower.fireAt(enemy.getPixelPosition());
+						break; // Make sure we only shoot one enemy at a time
+					}
+				}
+			}
+		}
+
+		enemies.erase(std::remove_if
+		(
+			enemies.begin(),
+			enemies.end(),
+			[](const Enemy& enemy)
+			{
+				return enemy.hasReachedEnd() || enemy.isDead();
+			}),
+			enemies.end()
+		);
 
 		break;
 
@@ -130,6 +181,10 @@ void Game::render(float interpolationFactor)
 
 	case GameState::Gameplay:
 		grid.render(interpolationFactor, window);
+
+		for (auto& tower : towers)
+			tower.render(interpolationFactor, window);
+
 		for (auto& enemy : enemies)
 			enemy.render(interpolationFactor, window);
 		break;

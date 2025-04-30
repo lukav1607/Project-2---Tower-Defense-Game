@@ -23,19 +23,16 @@ public:
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
 	void generateNewRandomLevel(int cols, int rows);
-	void placeTower(int col, int row, std::shared_ptr<Tower> tower);
 
-	sf::Vector2u getSize() const { return sf::Vector2u(cols, rows); }
-	sf::Vector2i getStartTile() const {	return startTileCoordinates; }
+	inline sf::Vector2u getSize() const { return sf::Vector2u(cols, rows); }
+	inline sf::Vector2i getStartTile() const {	return startTileCoordinates; }
 	Tile::Type getTileType(int col, int row) const;
 	Tile::Type getTileType(sf::Vector2i tilePosition) const;
-	bool isTowerPlaceableAtTile(int col, int row) const;
-	bool isTowerPlaceableAtTile(sf::Vector2i tilePosition) const;
 
 	static const float TILE_SIZE;
 
 private:
-	int rows, cols;
+	int cols, rows;
 	std::vector<std::vector<Tile>> tiles;
 	sf::Vector2i startTileCoordinates;
 };

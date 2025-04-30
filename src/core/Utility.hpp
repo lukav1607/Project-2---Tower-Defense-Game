@@ -22,6 +22,8 @@ namespace Utility
 	int randomNumber(int min, int max);
 
 	sf::Vector2f interpolate(sf::Vector2f previous, sf::Vector2f current, float factor);
+	sf::Vector2f normalize(sf::Vector2f vector);
+	inline float distance(sf::Vector2f a, sf::Vector2f b) { return std::hypotf(b.x - a.x, b.y - a.y); }
 
 	sf::Vector2f tileToPixelPosition(int col, int row, bool getCenterOfTile = true);
 	sf::Vector2f tileToPixelPosition(sf::Vector2i, bool getCenterOfTile = true);

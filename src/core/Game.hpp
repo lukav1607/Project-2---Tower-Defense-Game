@@ -14,6 +14,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "Grid.hpp"
 #include "../entities/Enemy.hpp"
+#include "../entities/Tower.hpp"
 
 class Game
 {
@@ -54,6 +55,8 @@ private:
 	int gold;
 
 	Grid grid;
+
+	std::vector<Tower> towers;
 
 	// Enemies
 	std::vector<Enemy> enemies;

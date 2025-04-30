@@ -30,11 +30,17 @@ int Utility::randomNumber(int min, int max)
 
 sf::Vector2f Utility::interpolate(sf::Vector2f previous, sf::Vector2f current, float factor)
 {
-	return sf::Vector2f
-	(
-		previous.x + (current.x - previous.x) * factor,
-		previous.y + (current.y - previous.y) * factor
-	);
+	return previous * (1.f - factor) + current * factor;
+}
+
+sf::Vector2f Utility::normalize(sf::Vector2f vector)
+{
+	float length = std::hypotf(vector.x, vector.y);
+
+	if (length != 0.f)
+		return vector / length;
+
+	return { 0.f, 0.f };
 }
 
 sf::Vector2f Utility::tileToPixelPosition(int col, int row, bool getCenterOfTile)

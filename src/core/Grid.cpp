@@ -134,18 +134,18 @@ void Grid::generateNewRandomLevel(int cols, int rows)
 	}
 }
 
-void Grid::placeTower(int col, int row, std::shared_ptr<Tower> tower)
-{
-	if (row < 0 || row >= rows || col < 0 || col >= cols)
-	{
-		std::cerr << "Invalid Tile coordinates for Tower placement!" << std::endl;
-		return;
-	}
-	if (tiles[row][col].getType() == Tile::Type::Buildable && tiles[row][col].tower == nullptr)
-	{
-		std::cout << "Placing tower on tile at (" << col << ", " << row << ")" << std::endl;
-		tiles[row][col].tower = tower;
-	}
+//void Grid::placeTower(int col, int row, std::shared_ptr<Tower> tower)
+//{
+//	if (row < 0 || row >= rows || col < 0 || col >= cols)
+//	{
+//		std::cerr << "Invalid Tile coordinates for Tower placement!" << std::endl;
+//		return;
+//	}
+//	if (tiles[row][col].getType() == Tile::Type::Buildable && tiles[row][col].tower == nullptr)
+//	{
+//		std::cout << "Placing tower on tile at (" << col << ", " << row << ")" << std::endl;
+//		tiles[row][col].tower = tower;
+//	}
 
 	// TODO: Maybe this should instead just return true to say "yes you can place a tower here"
 	//       and then something else should handle the tower placement?
@@ -159,30 +159,30 @@ void Grid::placeTower(int col, int row, std::shared_ptr<Tower> tower)
 	//	// TODO: Handle the case when the tile is not buildable
 	//	std::cout << "Cannot place tower on this tile!" << std::endl;
 	//}
-}
+//}
 
-bool Grid::isTowerPlaceableAtTile(int col, int row) const
-{
-	if (row < 0 || row >= rows || col < 0 || col >= cols)
-	{
-		std::cerr << "Invalid Tile coordinates for Tower placement!" << std::endl;
-		return false;
-	}
-	if (tiles[row][col].getType() == Tile::Type::Buildable && tiles[row][col].tower == nullptr)
-	{
-		return true;
-	}
-	else
-	{
-		std::cout << "Cannot place tower on this tile!" << std::endl;
-		return false;
-	}
-}
+//bool Grid::isTowerPlaceableAtTile(int col, int row) const
+//{
+//	if (row < 0 || row >= rows || col < 0 || col >= cols)
+//	{
+//		std::cerr << "Invalid Tile coordinates for Tower placement!" << std::endl;
+//		return false;
+//	}
+//	if (tiles[row][col].getType() == Tile::Type::Buildable)
+//	{
+//		return true;
+//	}
+//	else
+//	{
+//		std::cout << "Cannot place tower on this tile!" << std::endl;
+//		return false;
+//	}
+//}
 
-bool Grid::isTowerPlaceableAtTile(sf::Vector2i tilePosition) const
-{
-	return isTowerPlaceableAtTile(tilePosition.x, tilePosition.y);
-}
+//bool Grid::isTowerPlaceableAtTile(sf::Vector2i tilePosition) const
+//{
+//	return isTowerPlaceableAtTile(tilePosition.x, tilePosition.y);
+//}
 
 Tile::Type Grid::getTileType(int col, int row) const
 {

@@ -35,6 +35,4 @@ Tile::Tile(Type type, int x, int y, float size) :
 void Tile::render(float interpolationFactor, sf::RenderWindow& window)
 {
 	window.draw(shape);
-	if (tower != nullptr)
-		window.draw(tower->getShape());
 }

@@ -14,7 +14,6 @@
 
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "../entities/Tower.hpp"
 
 class Tile
 {
@@ -33,8 +32,6 @@ public:
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
 	Type getType() const { return type; }
-
-	std::shared_ptr<Tower> tower;
 
 private:
 	Type type;
