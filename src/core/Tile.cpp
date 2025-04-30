@@ -1,15 +1,13 @@
-#include "Tile.hpp"
 // ================================================================================================
 // File: Tile.cpp
 // Author: Luka Vukorepa (https://github.com/lukav1607)
 // Created: April 28, 2025
-// Description: Defines the Tile class, which represents a single tile on the game grid. Each tile
-//              holds information about its position, size, and whether it is occupied. It is 
-//              visually represented by an SFML RectangleShape for rendering.
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
 // ================================================================================================
+
+#include "Tile.hpp"
 
 Tile::Tile(Type type, int x, int y, float size) :
 	type(type),
@@ -37,4 +35,6 @@ Tile::Tile(Type type, int x, int y, float size) :
 void Tile::render(float interpolationFactor, sf::RenderWindow& window)
 {
 	window.draw(shape);
+	if (tower != nullptr)
+		window.draw(tower->getShape());
 }

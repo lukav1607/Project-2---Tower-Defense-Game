@@ -2,21 +2,32 @@
 // File: Game.cpp
 // Author: Luka Vukorepa (https://github.com/lukav1607)
 // Created: April 28, 2025
-// Description: Contains the implementation of the Game class, which manages the game loop,
-//              updates entities, handles events, and renders graphics.
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
 // ================================================================================================
 
+#include <iostream>
 #include "Game.hpp"
+#include "Utility.hpp"
+
+const bool Game::IS_DEBUG_MODE_ON = false;
 
 Game::Game() :
 	isRunning(true),
 	antiAliasingLevel(8),
 	isVSyncEnabled(true),
 	gameState(GameState::Gameplay),
-	grid(8, 10, 120.f)
+	lives(5),
+	gold(20),
+	grid(10, 8),
+	timeBetweenWaves(5.f),
+	timeSinceLastWaveEnded(5.f),
+	timeBetweenEnemies(0.75f),
+	timeSinceLastEnemySpawned(0.f),
+	wave(0),
+	enemiesPerWave(5),
+	enemiesSpawnedThisWave(0)
 {
 	auto settings = sf::ContextSettings();
 	settings.antiAliasingLevel = antiAliasingLevel;
@@ -65,6 +76,15 @@ void Game::processInput()
 		break;
 
 	case GameState::Gameplay:
+		if (Utility::isMouseButtonReleased(sf::Mouse::Button::Right))
+		{
+			sf::Vector2i clickedTile = Utility::pixelToTilePosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+
+			if (grid.isTowerPlaceableAtTile(clickedTile))
+			{
+				grid.placeTower(clickedTile.x, clickedTile.y, std::make_shared<Tower>(Tower::Type::Bullet, clickedTile));
+			}
+		}
 		break;
 
 	case GameState::GameOver:
@@ -80,6 +100,18 @@ void Game::update(float fixedTimeStep)
 		break;
 
 	case GameState::Gameplay:
+
+		updateWave(fixedTimeStep);
+
+		for (auto& enemy : enemies)
+		{
+			enemy.update(fixedTimeStep, grid);
+			if (enemy.hasReachedEnd())
+				lives--;
+		}
+
+		enemies.erase(std::remove_if(enemies.begin(), enemies.end(), [](const Enemy& enemy) { return enemy.hasReachedEnd(); }), enemies.end());
+
 		break;
 
 	case GameState::GameOver:
@@ -98,6 +130,8 @@ void Game::render(float interpolationFactor)
 
 	case GameState::Gameplay:
 		grid.render(interpolationFactor, window);
+		for (auto& enemy : enemies)
+			enemy.render(interpolationFactor, window);
 		break;
 
 	case GameState::GameOver:
@@ -105,6 +139,35 @@ void Game::render(float interpolationFactor)
 	}
 
 	window.display();
+}
+
+void Game::updateWave(float fixedTimeStep)
+{
+	timeSinceLastEnemySpawned += fixedTimeStep;
+
+	if (timeSinceLastWaveEnded >= timeBetweenWaves)
+	{
+		if (enemiesSpawnedThisWave == 0)
+			wave++;
+
+		if (timeSinceLastEnemySpawned >= timeBetweenEnemies && enemiesSpawnedThisWave < enemiesPerWave)
+		{
+			timeSinceLastEnemySpawned = 0.f;
+			enemiesSpawnedThisWave++;
+
+			enemies.emplace_back(grid.getStartTile(), Enemy::BASE_SPEED, Enemy::BASE_HEALTH);
+		}
+
+		if (enemiesSpawnedThisWave >= enemiesPerWave)
+		{
+			timeSinceLastWaveEnded = 0.f;
+			enemiesSpawnedThisWave = 0;
+		}
+	}
+	else
+	{
+		timeSinceLastWaveEnded += fixedTimeStep;
+	}
 }
 
 void Game::switchGameState(GameState newGameState)

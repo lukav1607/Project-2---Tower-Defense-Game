@@ -1,34 +1,23 @@
-#include "Grid.hpp"
 // ================================================================================================
 // File: Grid.cpp
 // Author: Luka Vukorepa (https://github.com/lukav1607)
 // Created: April 28, 2025
-// Description: Defines the Grid class, which contains a collection of Tile objects representing 
-//              the game grid. It is responsible for initializing the grid and rendering it to the 
-//              window.
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
 // ================================================================================================
 
+#include <iostream>
+#include "Grid.hpp"
 #include "Utility.hpp"
 
-Grid::Grid(int rows, int cols, float tileSize) :
-	rows(rows),
-	cols(cols),
-	tileSize(tileSize)
-{
-	generateNewRandomLevel(rows, cols, tileSize);
+const float Grid::TILE_SIZE = 120.f;
 
-	/*for (int i = 0; i < rows; ++i)
-	{
-		std::vector<Tile> row;
-		for (int j = 0; j < cols; ++j)
-		{
-			row.emplace_back(j, i, tileSize);
-		}
-		tiles.push_back(row);
-	}*/
+Grid::Grid(int cols, int rows) :
+	cols(cols),
+	rows(rows)
+{
+	generateNewRandomLevel(cols, rows);
 }
 
 void Grid::render(float interpolationFactor, sf::RenderWindow& window)
@@ -42,7 +31,7 @@ void Grid::render(float interpolationFactor, sf::RenderWindow& window)
 	}
 }
 
-void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
+void Grid::generateNewRandomLevel(int cols, int rows)
 {
 	bool doAllRowsHavePathableTiles = false;
 
@@ -58,7 +47,8 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 
 		int currentRow = Utility::randomNumber(1, rows - 2);
 		int currentCol = 0;
-		level[currentRow][currentCol] = Tile(Tile::Type::Start, currentCol, currentRow, tileSize);
+		level[currentRow][currentCol] = Tile(Tile::Type::Start, currentCol, currentRow, TILE_SIZE);
+		startTileCoordinates = { currentCol, currentRow };
 
 		int previousTileDirection = 0;
 
@@ -95,7 +85,7 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 				// Ensure it stays within the bounds of the grid and doesn't move
 				// up if at the second-to-top row or down if at the second-to-bottom row
 				currentRow = std::clamp(currentRow + nextTileDirection, 1, rows - 2);
-				level[currentRow][col] = Tile(Tile::Type::Pathable, col, currentRow, tileSize);
+				level[currentRow][col] = Tile(Tile::Type::Pathable, col, currentRow, TILE_SIZE);
 				rowHasPathableTile[currentRow] = true;
 			}
 
@@ -105,7 +95,7 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 				int step = (currentRow > previousRow) ? 1 : -1;
 				for (int row = previousRow; row != currentRow; row += step)
 				{
-					level[row][col] = Tile(Tile::Type::Pathable, col, row, tileSize);
+					level[row][col] = Tile(Tile::Type::Pathable, col, row, TILE_SIZE);
 					rowHasPathableTile[currentRow] = true;
 				}
 			}
@@ -114,13 +104,13 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 			if (col != cols - 1)
 			{
 				// Set the current tile as a pathable tile
-				level[currentRow][col] = Tile(Tile::Type::Pathable, col, currentRow, tileSize);
+				level[currentRow][col] = Tile(Tile::Type::Pathable, col, currentRow, TILE_SIZE);
 				rowHasPathableTile[currentRow] = true;
 			}
 			else
 			{
 				// Set the last tile as the end tile
-				level[currentRow][col] = Tile(Tile::Type::End, col, currentRow, tileSize);
+				level[currentRow][col] = Tile(Tile::Type::End, col, currentRow, TILE_SIZE);
 			}
 		}
 
@@ -135,11 +125,74 @@ void Grid::generateNewRandomLevel(int rows, int cols, float tileSize)
 			{
 				if (level[row][col].getType() == Tile::Type::Unassigned)
 				{
-					level[row][col] = Tile(Tile::Type::Buildable, col, row, tileSize);
+					level[row][col] = Tile(Tile::Type::Buildable, col, row, TILE_SIZE);
 				}
 			}
 		}
 
 		tiles = std::move(level);
 	}
+}
+
+void Grid::placeTower(int col, int row, std::shared_ptr<Tower> tower)
+{
+	if (row < 0 || row >= rows || col < 0 || col >= cols)
+	{
+		std::cerr << "Invalid Tile coordinates for Tower placement!" << std::endl;
+		return;
+	}
+	if (tiles[row][col].getType() == Tile::Type::Buildable && tiles[row][col].tower == nullptr)
+	{
+		std::cout << "Placing tower on tile at (" << col << ", " << row << ")" << std::endl;
+		tiles[row][col].tower = tower;
+	}
+
+	// TODO: Maybe this should instead just return true to say "yes you can place a tower here"
+	//       and then something else should handle the tower placement?
+	//if (tiles[col][row].getType() == Tile::Type::Buildable &&
+	//	tiles[col][row].tower == nullptr)
+	//{
+	//	tiles[col][row].tower = tower;
+	//}
+	//else
+	//{
+	//	// TODO: Handle the case when the tile is not buildable
+	//	std::cout << "Cannot place tower on this tile!" << std::endl;
+	//}
+}
+
+bool Grid::isTowerPlaceableAtTile(int col, int row) const
+{
+	if (row < 0 || row >= rows || col < 0 || col >= cols)
+	{
+		std::cerr << "Invalid Tile coordinates for Tower placement!" << std::endl;
+		return false;
+	}
+	if (tiles[row][col].getType() == Tile::Type::Buildable && tiles[row][col].tower == nullptr)
+	{
+		return true;
+	}
+	else
+	{
+		std::cout << "Cannot place tower on this tile!" << std::endl;
+		return false;
+	}
+}
+
+bool Grid::isTowerPlaceableAtTile(sf::Vector2i tilePosition) const
+{
+	return isTowerPlaceableAtTile(tilePosition.x, tilePosition.y);
+}
+
+Tile::Type Grid::getTileType(int col, int row) const
+{
+	if (row < 0 || row >= rows || col < 0 || col >= cols)
+		return Tile::Type::Unassigned;
+
+	return tiles[row][col].getType();
+}
+
+Tile::Type Grid::getTileType(sf::Vector2i tilePosition) const
+{
+	return getTileType(tilePosition.x, tilePosition.y);
 }

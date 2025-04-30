@@ -12,8 +12,21 @@
 
 #pragma once
 
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
+
 namespace Utility
 {
 	float randomNumber(float min, float max);
 	int randomNumber(int min, int max);
+
+	sf::Vector2f interpolate(sf::Vector2f previous, sf::Vector2f current, float factor);
+
+	sf::Vector2f tileToPixelPosition(int col, int row, bool getCenterOfTile = true);
+	sf::Vector2f tileToPixelPosition(sf::Vector2i, bool getCenterOfTile = true);
+	sf::Vector2i pixelToTilePosition(sf::Vector2f pixelPosition);
+
+	bool isMouseButtonReleased(sf::Mouse::Button button);
+	bool isKeyReleased(sf::Keyboard::Key key);
 }

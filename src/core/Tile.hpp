@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <SFML/Graphics.hpp>
+#include "../entities/Tower.hpp"
 
 class Tile
 {
@@ -31,10 +32,9 @@ public:
 
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
-	//void createTower(std::shared_ptr<Tower> tower);
-	
-	//inline bool isOccupied() const { return tower != nullptr; }
 	Type getType() const { return type; }
+
+	std::shared_ptr<Tower> tower;
 
 private:
 	Type type;
@@ -42,6 +42,4 @@ private:
 	float size;
 
 	sf::RectangleShape shape;
-
-	//std::shared_ptr<Tower> tower;
 };

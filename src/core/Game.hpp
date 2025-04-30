@@ -13,12 +13,15 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "Grid.hpp"
+#include "../entities/Enemy.hpp"
 
 class Game
 {
 public:
 	Game();
 	int run();
+
+	static const bool IS_DEBUG_MODE_ON;
 
 private:
 	void processInput();
@@ -31,17 +34,34 @@ private:
 		Gameplay,
 		GameOver
 	};
-	GameState gameState;
-
 	void switchGameState(GameState newGameState);
 
+	void updateWave(float fixedTimeStep);
+
+	// Loop and state management
+	GameState gameState;
 	bool isRunning;
 
+	// Window
 	sf::RenderWindow window;
 	const sf::Vector2u WINDOW_SIZE = { 1200, 1200 };
 	const sf::String WINDOW_TITLE = "Project 2 - Tower Defense Game";
 	unsigned antiAliasingLevel;
 	bool isVSyncEnabled;
 
+	// Gameplay data
+	int lives;
+	int gold;
+
 	Grid grid;
+
+	// Enemies
+	std::vector<Enemy> enemies;
+	float timeBetweenWaves;
+	float timeSinceLastWaveEnded;
+	float timeBetweenEnemies;
+	float timeSinceLastEnemySpawned;
+	int wave;
+	int enemiesPerWave;
+	int enemiesSpawnedThisWave;
 };
