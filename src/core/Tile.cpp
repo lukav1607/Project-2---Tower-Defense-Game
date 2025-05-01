@@ -8,6 +8,7 @@
 // ================================================================================================
 
 #include "Tile.hpp"
+#include "Utility.hpp"
 
 Tile::Tile(Type type, int x, int y, float size) :
 	type(type),
@@ -17,17 +18,25 @@ Tile::Tile(Type type, int x, int y, float size) :
 {
 	shape.setSize({ size, size });
 	shape.setPosition({ x * size, y * size });
-	shape.setOutlineColor(sf::Color::White);
-	shape.setOutlineThickness(0.1f);
+	//shape.setOutlineColor(sf::Color::White);
+	//shape.setOutlineThickness(0.1f);
+
+	sf::Color pathColor = sf::Color(155, 118, 83);
+	sf::Color grassColor = sf::Color
+	(
+		Utility::randomNumber(157, 165), //161, 
+		Utility::randomNumber(217, 229), //223, 
+		Utility::randomNumber(77, 83)    //80
+	);
 
 	if (type == Type::Start)
-		shape.setFillColor(sf::Color(225, 25, 25, 100));
+		shape.setFillColor(pathColor);
 	else if (type == Type::End)
-		shape.setFillColor(sf::Color(25, 225, 25, 100));
+		shape.setFillColor(pathColor);
 	else if (type == Type::Pathable)
-		shape.setFillColor(sf::Color(25, 225, 225, 100));
+		shape.setFillColor(pathColor);
 	else if (type == Type::Buildable)
-		shape.setFillColor(sf::Color(225, 225, 25, 100));
+		shape.setFillColor(grassColor);
 	else
 		shape.setFillColor(sf::Color(255, 255, 255, 100));
 }

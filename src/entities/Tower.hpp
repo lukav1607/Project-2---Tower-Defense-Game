@@ -32,12 +32,20 @@ public:
 	void update(float fixedTimeStep, std::vector<Enemy>& enemies);
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
+	void markForUpgrade();
+	bool tryUpgrade(int gold);
+	void markForSale();
 	void fireAt(sf::Vector2f target);
 
+	inline void setRangeCircleVisible(bool isVisible) { isRangeCircleVisible = isVisible; }
 	inline sf::Vector2i getTilePosition() const { return Utility::pixelToTilePosition(position); }
 	inline sf::Vector2f getPixelPosition() const { return position; }
 	inline int getLevel() const { return level; }
+	inline int getMaxLevel() const { return LEVEL_MAX; }
+	inline int getBaseBuyCost() const { return attributes[0].buyCost; }
 	inline bool canFire() const { return timeSinceLastShot >= attributes[level].fireRate; }
+	inline bool isMarkedForSale() const { return m_isMarkedForSale; }
+	inline bool isMarkedForUpgrade() const { return m_isMarkedForUpgrade; }
 
 	const struct AttributesPerLevel
 	{
@@ -49,9 +57,9 @@ public:
 	}
 	attributes[3] =
 	{
-	{ 20, 5, 1, 200.f, 0.77f },
-	{ 45, 15, 2, 250.f, 0.66f },
-	{ 100, 35, 3, 300.f, 0.55f }
+	{ 20, 5, 1, 200.f, 1.25f },
+	{ 50, 15, 2, 250.f, 1.1f },
+	{ 90, 35, 3, 300.f, 0.9f }
 	};
 
 protected:
@@ -67,14 +75,23 @@ protected:
 	};
 	std::vector<Bullet> bullets;
 
+	sf::Color towerColor;
+	sf::Color bulletColor;
+
 	sf::Vector2f position;
 
 	Type type;
 
-	int LEVEL_MAX = 3;
+	int LEVEL_MAX = 2;
 	int level;
+
+	bool m_isMarkedForSale;
+	bool m_isMarkedForUpgrade;
 
 	float timeSinceLastShot;
 
 	sf::RectangleShape shape;
+
+	sf::CircleShape rangeCircle;
+	bool isRangeCircleVisible;
 };

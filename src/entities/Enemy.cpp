@@ -11,8 +11,8 @@
 #include "Enemy.hpp"
 #include "../core/Utility.hpp"
 
-const float Enemy::BASE_SPEED = 75.f;
-const int Enemy::BASE_HEALTH = 3;
+const float Enemy::BASE_SPEED = 70.f;
+const int Enemy::BASE_HEALTH = 2;
 
 Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
 	size(15.f),
@@ -27,10 +27,10 @@ Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
 
 	previousTile = Utility::pixelToTilePosition(positionCurrent);
 
-	worth = std::floorf((speed * health) / 100.f);
+	worth = std::floorf((speed * health / 2.f) / 100.f);
 
 	shape.setRadius(size);
-	shape.setFillColor(sf::Color(20, 20, 20));
+	shape.setFillColor(sf::Color(71, 28, 28));
 	shape.setOrigin({ size, size });
 	shape.setPosition(positionCurrent);
 }

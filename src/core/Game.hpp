@@ -15,6 +15,7 @@
 #include "Grid.hpp"
 #include "../entities/Enemy.hpp"
 #include "../entities/Tower.hpp"
+#include "../ui/UIManager.hpp"
 
 class Game
 {
@@ -56,7 +57,7 @@ private:
 
 	Grid grid;
 
-	std::vector<Tower> towers;
+	std::vector<std::shared_ptr<Tower>> towers;
 
 	// Enemies
 	std::vector<Enemy> enemies;
@@ -67,4 +68,8 @@ private:
 	int wave;
 	int enemiesPerWave;
 	int enemiesSpawnedThisWave;
+	bool waitingForFirstEnemyInWave;
+
+	UIManager ui;
+	sf::Vector2f mousePosition;
 };

@@ -1,0 +1,46 @@
+// ================================================================================================
+// File: HUD.cpp
+// Author: Luka Vukorepa (https://github.com/lukav1607)
+// Created: May 1, 2025
+// ================================================================================================
+// License: MIT License
+// Copyright (c) 2025 Luka Vukorepa
+// ================================================================================================
+
+#include "HUD.hpp"
+
+HUD::HUD(const sf::Font& font, sf::Vector2u windowSize) :
+	windowSize(windowSize),
+	livesText(font, "Level: N/A", 48U),
+	goldText(font, "Gold: N/A", 48U),
+	waveText(font, "Wave: N/A", 48U)
+{
+	livesText.setFillColor(sf::Color(220, 223, 225));
+	livesText.setOutlineThickness(2.f);
+	livesText.setOutlineColor(sf::Color(50, 53, 55));
+	livesText.setPosition(sf::Vector2f(40.f, windowSize.y - livesText.getGlobalBounds().size.y * 2.f));
+
+	goldText.setFillColor(sf::Color(220, 223, 225));
+	goldText.setOutlineThickness(2.f);
+	goldText.setOutlineColor(sf::Color(50, 53, 55));
+	goldText.setPosition(sf::Vector2f(40.f, windowSize.y - goldText.getGlobalBounds().size.y * 3.75f));
+
+	waveText.setFillColor(sf::Color(220, 223, 225));
+	waveText.setOutlineThickness(2.f);
+	waveText.setOutlineColor(sf::Color(50, 53, 55));
+	waveText.setPosition(sf::Vector2f(40.f, windowSize.y - waveText.getGlobalBounds().size.y * 5.5f));
+}
+
+void HUD::update(float fixedTimeStep, int lives, int gold, int wave)
+{
+	livesText.setString("Lives: " + std::to_string(lives));
+	goldText.setString("Gold: " + std::to_string(gold));
+	waveText.setString("Wave: " + std::to_string(wave));
+}
+
+void HUD::render(float interpolationFactor, sf::RenderWindow& window)
+{
+	window.draw(livesText);
+	window.draw(goldText);
+	window.draw(waveText);
+}

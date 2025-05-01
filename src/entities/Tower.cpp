@@ -14,12 +14,25 @@ Tower::Tower(Type type, sf::Vector2i tilePosition) :
 	type(type),
 	position(Utility::tileToPixelPosition(tilePosition)),
 	timeSinceLastShot(0.f),
-	level(1)
+	level(0),
+	m_isMarkedForSale(false),
+	m_isMarkedForUpgrade(false),
+	isRangeCircleVisible(false),
+	towerColor(sf::Color(10, 92, 54)),
+	bulletColor(sf::Color(25, 17, 6))
 {
-	shape.setSize({ 50.f, 50.f });
-	shape.setFillColor(sf::Color(200, 200, 200));
+	shape.setSize({ 60.f, 60.f });
+	shape.setFillColor(towerColor);
 	shape.setOrigin({ shape.getSize().x / 2.f, shape.getSize().y / 2.f });
 	shape.setPosition(position);
+
+	rangeCircle.setRadius(attributes[level].range);
+	rangeCircle.setOrigin({ rangeCircle.getRadius(), rangeCircle.getRadius() });
+	rangeCircle.setFillColor(sf::Color(0, 0, 0, 25));
+	rangeCircle.setOutlineColor(sf::Color(0, 0, 0, 75));
+	rangeCircle.setOutlineThickness(2.f);
+	rangeCircle.setPosition(position);
+	rangeCircle.setPointCount(100);
 }
 
 void Tower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
@@ -42,7 +55,7 @@ void Tower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 		{
 			if (Utility::distance(bullet.positionCurrent, enemy.getPixelPosition()) <= enemy.getSize())
 			{
-				enemy.takeDamage(attributes[level - 1].damage);
+				enemy.takeDamage(attributes[level].damage);
 				bullet.hasHitEnemy = true;
 				break;
 			}
@@ -53,6 +66,9 @@ void Tower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 void Tower::render(float interpolationFactor, sf::RenderWindow& window)
 {
 	window.draw(shape);
+	if (isRangeCircleVisible)
+		window.draw(rangeCircle);
+
 	for (auto& bullet : bullets)
 	{
 		bullet.shape.setPosition(Utility::interpolate(bullet.positionPrevious, bullet.positionCurrent, interpolationFactor));
@@ -60,8 +76,38 @@ void Tower::render(float interpolationFactor, sf::RenderWindow& window)
 	}
 }
 
+void Tower::markForUpgrade()
+{	
+	m_isMarkedForUpgrade = true;
+}
+
+bool Tower::tryUpgrade(int gold)
+{
+	if (level >= LEVEL_MAX)
+		return false;
+
+	if (level < LEVEL_MAX && gold >= attributes[level + 1].buyCost)
+	{
+		level++;
+		rangeCircle.setRadius(attributes[level].range);
+		rangeCircle.setOrigin({ rangeCircle.getRadius(), rangeCircle.getRadius() });
+		rangeCircle.setPosition(position);
+		m_isMarkedForUpgrade = false;
+		return true;
+	}
+	return false;
+}
+
+void Tower::markForSale()
+{
+	m_isMarkedForSale = true;
+}
+
 void Tower::fireAt(sf::Vector2f target)
 {
+	if (target.x <= 0)
+		return;
+
 	Bullet bullet;
 	bullet.positionCurrent = position;
 	bullet.positionPrevious = position;
@@ -72,7 +118,7 @@ void Tower::fireAt(sf::Vector2f target)
 
 	bullet.shape.setRadius(5.f);
 	bullet.shape.setOrigin({ bullet.shape.getRadius(), bullet.shape.getRadius() });
-	bullet.shape.setFillColor(sf::Color(255, 0, 0));
+	bullet.shape.setFillColor(bulletColor);
 
 	bullets.push_back(bullet);
 

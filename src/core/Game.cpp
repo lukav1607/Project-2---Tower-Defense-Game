@@ -19,15 +19,17 @@ Game::Game() :
 	isVSyncEnabled(true),
 	gameState(GameState::Gameplay),
 	lives(5),
-	gold(20),
+	gold(1140),
 	grid(10, 8),
-	timeBetweenWaves(5.f),
-	timeSinceLastWaveEnded(5.f),
+	timeBetweenWaves(10.f),
+	timeSinceLastWaveEnded(10.f),
 	timeBetweenEnemies(0.75f),
 	timeSinceLastEnemySpawned(0.f),
 	wave(0),
 	enemiesPerWave(5),
-	enemiesSpawnedThisWave(0)
+	enemiesSpawnedThisWave(0),
+	waitingForFirstEnemyInWave(false),
+	ui(WINDOW_SIZE)
 {
 	auto settings = sf::ContextSettings();
 	settings.antiAliasingLevel = antiAliasingLevel;
@@ -73,47 +75,56 @@ void Game::processInput()
 	switch (gameState)
 	{
 	case GameState::MainMenu:
+	{
 		break;
-
+	}
 	case GameState::Gameplay:
-		if (Utility::isMouseButtonReleased(sf::Mouse::Button::Right))
+	{
+		mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+		bool isLeftMouseReleased = Utility::isMouseButtonReleased(sf::Mouse::Button::Left);
+		bool isRightMouseReleased = Utility::isMouseButtonReleased(sf::Mouse::Button::Right);
+
+		ui.processInput(mousePosition, isLeftMouseReleased);
+
+		if (isRightMouseReleased)
 		{
-			sf::Vector2i clickedTile = Utility::pixelToTilePosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+			ui.clearSelection();
+
+			sf::Vector2i clickedTile = Utility::pixelToTilePosition(mousePosition);
 
 			// Try to find the tower at the clicked tile
-			auto it = std::find_if(towers.begin(), towers.end(), [&](const Tower& tower) 
-					{ return tower.getTilePosition() == clickedTile; });
+			auto it = std::find_if(towers.begin(), towers.end(), [&](std::shared_ptr<Tower> tower)
+				{ return tower->getTilePosition() == clickedTile; });
 
 			// If there is NOT a tower at the clicked tile and the tile is buildable
 			if (it == towers.end() && grid.getTileType(clickedTile) == Tile::Type::Buildable)
 			{
-				//TODO: Show GUI - Select tower type, display tower info
-
-				// Tower type selected:
-					// Player has enough gold to place a tower:
-						towers.emplace_back(Tower::Type::Bullet, clickedTile);
-
-					// Not enough gold:
-						// TODO: GUI - Not enough gold to place a tower
-				// Else:
-					// TODO: Hide GUI
-			}
-			// If there IS a tower at the clicked tile
-			else 
-			{
-				//TODO: GUI - Show tower info, upgrade tower, sell tower
+				ui.setSelectedTile(clickedTile);
 				
-				// Upgrade tower selected:
-					// Tower level++
-				// Sell tower selected:
-					// gold += tower->attributes[tower->level].sellCost;
-					// Tower is removed from the tile
+				towers.emplace_back(std::make_shared<Tower>(Tower::Type::Bullet, clickedTile));
+				int previousGold = gold;
+				gold -= towers.back()->attributes[towers.back()->getLevel()].buyCost;
+				if (gold < 0)
+				{
+					towers.pop_back();
+					gold = previousGold;
+				}
+			}
+			else if (it != towers.end() && grid.getTileType(clickedTile) == Tile::Type::Buildable)
+			{
+				ui.setSelectedTower(*it);
 			}
 		}
+		else if (isLeftMouseReleased && !ui.isAnElementHoveredOver(mousePosition))
+		{
+			ui.clearSelection();
+		}
 		break;
-
+	}
 	case GameState::GameOver:
+	{
 		break;
+	}
 	}
 }
 
@@ -122,10 +133,11 @@ void Game::update(float fixedTimeStep)
 	switch (gameState)
 	{
 	case GameState::MainMenu:
+	{
 		break;
-
+	}
 	case GameState::Gameplay:
-
+	{
 		updateWave(fixedTimeStep);
 
 		for (auto& enemy : enemies)
@@ -137,25 +149,46 @@ void Game::update(float fixedTimeStep)
 
 		for (auto& tower : towers)
 		{
-			tower.update(fixedTimeStep, enemies);
+			tower->update(fixedTimeStep, enemies);
 
 			for (auto& enemy : enemies)
 			{
-				if (Utility::distance(tower.getPixelPosition(), enemy.getPixelPosition()) <= tower.attributes[tower.getLevel() - 1].range)
+				if (enemy.isDead())
 				{
-					if (tower.canFire())
+					gold += enemy.getWorth();
+					break;
+				}
+
+				if (Utility::distance(tower->getPixelPosition(), enemy.getPixelPosition()) <= tower->attributes[tower->getLevel()].range)
+				{
+					if (tower->canFire())
 					{
-						tower.fireAt(enemy.getPixelPosition());
+						tower->fireAt(enemy.getPixelPosition());
 						break; // Make sure we only shoot one enemy at a time
 					}
 				}
 			}
+			if (tower->isMarkedForUpgrade())
+			{
+				if (tower->tryUpgrade(gold))
+					gold -= tower->attributes[tower->getLevel()].buyCost;
+			}
+			if (tower->isMarkedForSale())
+			{
+				gold += tower->attributes[tower->getLevel()].sellCost;
+				break;
+			}
 		}
 
-		enemies.erase(std::remove_if
-		(
-			enemies.begin(),
-			enemies.end(),
+		towers.erase(std::remove_if(towers.begin(), towers.end(),
+			[](const std::shared_ptr<Tower>& tower)
+			{
+				return tower->isMarkedForSale();
+			}),
+			towers.end()
+		);
+
+		enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
 			[](const Enemy& enemy)
 			{
 				return enemy.hasReachedEnd() || enemy.isDead();
@@ -163,16 +196,20 @@ void Game::update(float fixedTimeStep)
 			enemies.end()
 		);
 
-		break;
+		ui.update(fixedTimeStep, mousePosition, lives, gold, wave);
 
-	case GameState::GameOver:
 		break;
+	}
+	case GameState::GameOver:
+	{
+		break;
+	}
 	}
 }
 
 void Game::render(float interpolationFactor)
 {
-	window.clear();
+	window.clear(sf::Color(110, 115, 120));
 
 	switch (gameState)
 	{
@@ -183,10 +220,13 @@ void Game::render(float interpolationFactor)
 		grid.render(interpolationFactor, window);
 
 		for (auto& tower : towers)
-			tower.render(interpolationFactor, window);
+			tower->render(interpolationFactor, window);
 
 		for (auto& enemy : enemies)
 			enemy.render(interpolationFactor, window);
+
+		ui.render(interpolationFactor, window);
+
 		break;
 
 	case GameState::GameOver:
@@ -198,19 +238,44 @@ void Game::render(float interpolationFactor)
 
 void Game::updateWave(float fixedTimeStep)
 {
+	/*
+	float timeBetweenWaves;
+	float timeSinceLastWaveEnded;
+	float timeBetweenEnemies;
+	float timeSinceLastEnemySpawned;
+	int wave;
+	int enemiesPerWave;
+	int enemiesSpawnedThisWave;
+	bool waitingForFirstEnemyInWave;
+	*/
+	static int healthModifier = 0;
+
 	timeSinceLastEnemySpawned += fixedTimeStep;
 
 	if (timeSinceLastWaveEnded >= timeBetweenWaves)
 	{
-		if (enemiesSpawnedThisWave == 0)
+		if (enemiesSpawnedThisWave == 0 && !waitingForFirstEnemyInWave)
+		{
 			wave++;
+			timeBetweenEnemies -= 0.01f;
+			if (wave % 2 == 0)
+			{
+				enemiesPerWave++;
+			}
+			if (wave % 5 == 0)
+			{
+				healthModifier++;
+			}
+			waitingForFirstEnemyInWave = true;
+		}
 
 		if (timeSinceLastEnemySpawned >= timeBetweenEnemies && enemiesSpawnedThisWave < enemiesPerWave)
 		{
+			waitingForFirstEnemyInWave = false;
 			timeSinceLastEnemySpawned = 0.f;
 			enemiesSpawnedThisWave++;
 
-			enemies.emplace_back(grid.getStartTile(), Enemy::BASE_SPEED, Enemy::BASE_HEALTH);
+			enemies.emplace_back(grid.getStartTile(), Enemy::BASE_SPEED + wave, Enemy::BASE_HEALTH + healthModifier);
 		}
 
 		if (enemiesSpawnedThisWave >= enemiesPerWave)

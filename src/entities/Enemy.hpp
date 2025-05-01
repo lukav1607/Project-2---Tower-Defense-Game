@@ -31,6 +31,8 @@ public:
 
 	inline bool isDead() const { return health <= 0; }
 	inline bool hasReachedEnd() const { return m_hasReachedEnd; }
+	inline bool hasStartedPath() const { return positionCurrent.x > 0; }
+	inline int getWorth() const { return worth; }
 	sf::Vector2f getPixelPosition() const { return positionCurrent; }
 	inline float getSize() const { return size; }
 

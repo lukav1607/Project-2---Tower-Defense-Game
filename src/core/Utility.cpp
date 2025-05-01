@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <random>
+#include <map>
 #include "Utility.hpp"
 #include "Grid.hpp"
 
@@ -63,32 +64,22 @@ sf::Vector2i Utility::pixelToTilePosition(sf::Vector2f pixelPosition)
 
 bool Utility::isMouseButtonReleased(sf::Mouse::Button button)
 {
-	static bool wasPressedLastUpdate = false;
-
-	if (sf::Mouse::isButtonPressed(button))
-	{
-		wasPressedLastUpdate = true;
-	}
-	else if (wasPressedLastUpdate)
-	{
-		wasPressedLastUpdate = false;
-		return true;
-	}
-	return false;
+	static std::map<sf::Mouse::Button, bool> buttonStates;
+	if (buttonStates.find(button) == buttonStates.end())
+		buttonStates[button] = false;
+	bool isPressedNow = sf::Mouse::isButtonPressed(button);
+	bool wasPressedLastFrame = buttonStates[button];
+	buttonStates[button] = isPressedNow;
+	return !isPressedNow && wasPressedLastFrame;
 }
 
 bool Utility::isKeyReleased(sf::Keyboard::Key key)
 {
-	static bool wasPressedLastUpdate = false;
-
-	if (sf::Keyboard::isKeyPressed(key))
-	{
-		wasPressedLastUpdate = true;
-	}
-	else if (wasPressedLastUpdate)
-	{
-		wasPressedLastUpdate = false;
-		return true;
-	}
-	return false;
+	static std::map<sf::Keyboard::Key, bool> keyStates;
+	if (keyStates.find(key) == keyStates.end())
+		keyStates[key] = false;
+	bool isPressedNow = sf::Keyboard::isKeyPressed(key);
+	bool wasPressedLastFrame = keyStates[key];
+	keyStates[key] = isPressedNow;
+	return !isPressedNow && wasPressedLastFrame;
 }
