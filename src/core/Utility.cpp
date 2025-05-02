@@ -8,6 +8,7 @@
 // ================================================================================================
 
 #include <iostream>
+#include <sstream>
 #include <random>
 #include <map>
 #include "Utility.hpp"
@@ -82,4 +83,17 @@ bool Utility::isKeyReleased(sf::Keyboard::Key key)
 	bool wasPressedLastFrame = keyStates[key];
 	keyStates[key] = isPressedNow;
 	return !isPressedNow && wasPressedLastFrame;
+}
+
+std::string Utility::removeTrailingZeros(float number)
+{
+	std::ostringstream ss;
+	ss.precision(2);
+	ss << std::fixed << number;
+	std::string str = ss.str();
+	// Remove trailing zeros
+	str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+	if (str.back() == '.')
+		str.pop_back();
+	return str;
 }

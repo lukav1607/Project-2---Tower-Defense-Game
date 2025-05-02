@@ -31,4 +31,6 @@ namespace Utility
 
 	bool isMouseButtonReleased(sf::Mouse::Button button);
 	bool isKeyReleased(sf::Keyboard::Key key);
+
+	std::string removeTrailingZeros(float number);
 }

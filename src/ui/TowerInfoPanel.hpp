@@ -36,7 +36,6 @@ private:
 
 	Button upgradeButton;
 	Button sellButton;
-	bool wasTowerJustUpgraded;
 	bool hasTowerReachedMaxLevel;
 
 	std::shared_ptr<Tower> selectedTower;

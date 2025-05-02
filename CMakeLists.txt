@@ -27,7 +27,8 @@ add_executable(
     "src/ui/UIManager.cpp"
     "src/ui/HUD.cpp"
     "src/ui/TowerBuildMenu.cpp"
-    "src/ui/TowerInfoPanel.cpp" "src/ui/Button.cpp")
+    "src/ui/TowerInfoPanel.cpp"
+    "src/ui/Button.cpp")
 target_compile_features("TowerDefenseGame" PRIVATE cxx_std_17)
 target_link_libraries("TowerDefenseGame" PRIVATE SFML::System SFML::Window SFML::Graphics SFML::Audio)
 target_compile_definitions("TowerDefenseGame" PRIVATE SFML_STATIC)

@@ -60,7 +60,7 @@ void Button::setPosition(sf::Vector2f position)
 	shape.setPosition(position);
 	sf::FloatRect textBounds = text.getGlobalBounds();
 	text.setOrigin({ textBounds.size.x / 2.f, textBounds.size.y / 1.5f });
-	text.setPosition(position + shape.getSize() / 2.f);
+	text.setPosition({ position.x + shape.getSize().x / 2.f, position.y + shape.getSize().y / 1.85f });
 }
 
 void Button::setText(const std::string& text)

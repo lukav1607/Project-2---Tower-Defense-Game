@@ -14,13 +14,12 @@
 
 TowerInfoPanel::TowerInfoPanel(const sf::Font& font, sf::Vector2u windowSize) :
 	windowSize(windowSize),
-	upgradeButton(sf::Vector2f(150.f, 50.f), font, "UPGRADE"),
-	sellButton(sf::Vector2f(80.f, 50.f), font, "SELL"),
-	wasTowerJustUpgraded(false),
+	upgradeButton(sf::Vector2f(170.f, 100.f), font, "UPGRADE\n(N/Ag)"),
+	sellButton(sf::Vector2f(130.f, 100.f), font, "SELL\n(N/Ag)"),
 	hasTowerReachedMaxLevel(false),
-	info(font, "N/A", 24U)
+	info(font, "N/A", 30U)
 {
-	background.setSize({ 300.f, 250.f });
+	background.setSize({ 400.f, 300.f });
 	background.setFillColor(UIManager::BACKGROUND_COLOR);
 	background.setOutlineColor(UIManager::BACKGROUND_OUTLINE_COLOR);
 	background.setOutlineThickness(UIManager::BACKGROUND_OUTLINE_THICKNESS);
@@ -36,7 +35,6 @@ void TowerInfoPanel::processInput(sf::Vector2f mousePosition, bool isMouseReleas
 	if (upgradeButton.isClicked() && (selectedTower->getLevel() < selectedTower->getMaxLevel()))
 	{
 		selectedTower->markForUpgrade();
-		wasTowerJustUpgraded = true;
 	}
 	else if (sellButton.isClicked())
 	{
@@ -49,11 +47,7 @@ void TowerInfoPanel::update(float fixedTimeStep)
 {
 	if (!isTowerSelected()) return;
 
-	if (wasTowerJustUpgraded)
-	{
-		updateInfoText();
-		wasTowerJustUpgraded = false;
-	}
+	updateInfoText();
 
 	upgradeButton.update(fixedTimeStep, selectedTower->getLevel() < selectedTower->getMaxLevel());
 	sellButton.update(fixedTimeStep, true);
@@ -72,10 +66,17 @@ void TowerInfoPanel::render(float interpolationFactor, sf::RenderWindow& window)
 void TowerInfoPanel::setSelectedTower(std::shared_ptr<Tower> tower)
 {
 	selectedTower = tower;
-	updateInfoText();
 	selectedTower->setRangeCircleVisible(true);
-	background.setPosition(Utility::tileToPixelPosition(tower->getTilePosition().x, tower->getTilePosition().y) + sf::Vector2f(30.f, 0.f));
-	info.setPosition(background.getPosition() + sf::Vector2f(10.f, 10.f));
+	updateInfoText();
+
+	sf::Vector2f position = Utility::tileToPixelPosition(tower->getTilePosition().x, tower->getTilePosition().y);
+	sf::Vector2f backgroundOffset = { 35.f, 0.f };
+	position += backgroundOffset;
+	if (position.x + background.getSize().x > windowSize.x)
+		position.x -= backgroundOffset.x * 2 + background.getSize().x;
+
+	background.setPosition(position);
+	info.setPosition(background.getPosition() + sf::Vector2f(20.f, 15.f));
 	upgradeButton.setPosition(
 		{ 
 			background.getGlobalBounds().position.x + 20.f,
@@ -109,26 +110,41 @@ void TowerInfoPanel::updateInfoText()
 	if (!selectedTower) return;
 
 	const auto& attributes = selectedTower->attributes[selectedTower->getLevel()];
+
 	std::ostringstream ss;
 
-	if (selectedTower->getLevel() >= selectedTower->getMaxLevel())
+	std::string levelAppend;
+	std::string damageAppend;
+	std::string rangeAppend;
+	std::string fireRateAppend;
+
+	sellButton.setText("SELL\n" + std::to_string(attributes.sellCost) + "g");
+
+	if (selectedTower->getLevel() < selectedTower->getMaxLevel())
 	{
-		ss << "Level: " << selectedTower->getLevel() << "\n"
-			<< "Damage: " << attributes.damage << "\n"
-			<< "Range: " << static_cast<int>(attributes.range) << "\n"
-			<< "Fire Rate: " << attributes.fireRate << "\n"
-			<< "No more upgrades!" << "\n"
-			<< "Sell Value: " << attributes.sellCost;
+		std::ostringstream upgradeButtonTextS;
+		upgradeButtonTextS << "UPGRADE\n" << selectedTower->attributes[selectedTower->getLevel() + 1].buyCost << "g";
+		upgradeButton.setText(upgradeButtonTextS.str());
+
+		if (upgradeButton.isHovered())
+		{
+			const auto& nextLevelAttributes = selectedTower->attributes[selectedTower->getLevel() + 1];
+
+			levelAppend = " > " + std::to_string(selectedTower->getLevel() + 2);
+			damageAppend = " > " + std::to_string(nextLevelAttributes.damage);
+			rangeAppend = " > " + std::to_string(static_cast<int>(nextLevelAttributes.range));
+			fireRateAppend = " > " + Utility::removeTrailingZeros(nextLevelAttributes.fireRate);
+		}
 	}
-	else
+	else if (selectedTower->getLevel() >= selectedTower->getMaxLevel())
 	{
-		ss << "Level: " << selectedTower->getLevel() + 1 << "\n"
-			<< "Damage: " << attributes.damage << "\n"
-			<< "Range: " << static_cast<int>(attributes.range) << "\n"
-			<< "Fire Rate: " << attributes.fireRate << "\n"
-			<< "Upgrade Cost: " << selectedTower->attributes[selectedTower->getLevel() + 1].buyCost << "\n"
-			<< "Sell Value: " << attributes.sellCost;
+		upgradeButton.setText("UPGRADE\n     N/A");
 	}
+
+	ss << "Level: " << selectedTower->getLevel() + 1 << levelAppend << "\n"
+		<< "Damage: " << attributes.damage << damageAppend << "\n"
+		<< "Range: " << static_cast<int>(attributes.range) << rangeAppend << "\n"
+		<< "Fire Rate: " << attributes.fireRate << fireRateAppend;
 
 	info.setString(ss.str());
 }
