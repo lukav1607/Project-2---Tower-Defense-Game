@@ -35,12 +35,42 @@ TowerBuildMenu::TowerBuildMenu(const sf::Font& font, const std::string& title, s
 		option.name.setString(metadata.name);
 		option.name.setOutlineThickness(UIManager::TEXT_OUTLINE_THICKNESS);
 		option.name.setOutlineColor(UIManager::TEXT_OUTLINE_COLOR);
-		option.description.setString
-		(
-			"Damage: " + std::to_string(metadata.attributes[0].damage) +
-			"\nRange: " + std::to_string(static_cast<int>(metadata.attributes[0].range)) +
-			"\nFire Rate: " + Utility::removeTrailingZeros(metadata.attributes[0].fireRate)
-		);
+		switch (metadata.type)
+		{
+		case TowerRegistry::Type::Bullet:
+		{
+			option.description.setString
+			(
+				"Damage: " + std::to_string(metadata.attributes[0].damage) +
+				"\nRange: " + std::to_string(static_cast<int>(metadata.attributes[0].range)) +
+				"\nFire Rate: " + Utility::removeTrailingZeros(metadata.attributes[0].fireRate)
+			);
+			break;
+		}
+		case TowerRegistry::Type::Splash:
+		{
+			option.description.setString
+			(
+				"Damage: " + std::to_string(metadata.attributes[0].damage) +
+				"\nRange: " + std::to_string(static_cast<int>(metadata.attributes[0].range)) +
+				"\nFire Rate: " + Utility::removeTrailingZeros(metadata.attributes[0].fireRate) +
+				"\nRadius: " + Utility::removeTrailingZeros(metadata.attributes[0].splashRadius)
+			);
+			break;
+		}
+		case TowerRegistry::Type::Slow:
+		{
+			option.description.setString
+			(
+				"Damage: " + std::to_string(metadata.attributes[0].damage) +
+				"\nRange: " + std::to_string(static_cast<int>(metadata.attributes[0].range)) +
+				"\nFire Rate: " + Utility::removeTrailingZeros(metadata.attributes[0].fireRate) +
+				"\nPercent: " + std::to_string(static_cast<int>(metadata.attributes[0].slowAmount * 100.f)) + "%" +
+				"\nDuration: " + Utility::removeTrailingZeros(metadata.attributes[0].slowDuration) + "s"
+			);
+			break;
+		}
+		}
 		option.button = Button(font, std::to_string(metadata.attributes[0].buyCost) + std::string("g"), sf::Vector2f(150.f, 50.f));
 		options.push_back(option);
 	}
@@ -129,25 +159,80 @@ void TowerBuildMenu::updateLayout(sf::Vector2u windowSize)
 	else if (position.y < 0)
 		position.y = 0;
 
-	// Set the position of the background, name and descrpition text and buttons for each option
+	// Set the position of the background
 	background.setPosition(position);
 
-	for (int i = 0; i < options.size(); ++i)
+	// Number of options
+	const int numOptions = static_cast<int>(options.size());
+
+	// Available width for spacing items (minus padding on both sides)
+	float usableWidth = background.getSize().x - 2 * padding.x;
+
+	// Width per slot
+	float slotWidth = usableWidth / numOptions;
+
+	for (int i = 0; i < numOptions; ++i)
 	{
-		options[i].name.setPosition
-		({
-			position.x + padding.x + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
+		float slotX = position.x + padding.x + i * slotWidth;
+
+		// Center text/button in slot
+		float nameWidth = options[i].name.getGlobalBounds().size.x;
+		float descHeight = options[i].description.getGlobalBounds().size.y;
+
+		// Position name
+		options[i].name.setPosition({
+			slotX + (slotWidth - nameWidth) / 2.f,
 			position.y + padding.y
 		});
-		options[i].description.setPosition
-		({
-			position.x + padding.x * 1.5f + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
-			position.y + padding.y * 1.75f + options[i].name.getGlobalBounds().size.y
+
+		// Position description
+		options[i].description.setPosition({
+			slotX + (slotWidth - options[i].description.getGlobalBounds().size.x) / 2.f,
+			position.y + padding.y * 1.75f + options[i].name.getCharacterSize()
 		});
-		options[i].button.setPosition
-		({
-			position.x + padding.x * 1.5f + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
-			position.y + padding.y * 3.5f + options[i].name.getGlobalBounds().size.y + options[i].description.getGlobalBounds().size.y
+
+		// Position button
+		float buttonY = position.y + background.getSize().y - padding.y - options[i].button.getSize().y;
+		options[i].button.setPosition({
+			slotX + (slotWidth - options[i].button.getSize().x) / 2.f,
+			buttonY
 		});
 	}
+	//position = Utility::tileToPixelPosition(selectedTile.x, selectedTile.y);
+
+	//// Offset the position to center the menu below the tower
+	//sf::Vector2f offset = { -background.getSize().x / 2.f, 70.f };
+	//position += offset;
+
+	//// Check if the menu goes out of window bounds and adjust the position accordingly
+	//if (position.x + background.getSize().x > windowSize.x)
+	//	position.x = windowSize.x - background.getSize().x;
+	//else if (position.x < 0)
+	//	position.x = 0;
+	//if (position.y + background.getSize().y > windowSize.y)
+	//	position.y = windowSize.y - background.getSize().y;
+	//else if (position.y < 0)
+	//	position.y = 0;
+
+	//// Set the position of the background, name and descrpition text and buttons for each option
+	//background.setPosition(position);
+
+	//for (int i = 0; i < options.size(); ++i)
+	//{
+	//	options[i].name.setPosition
+	//	({
+	//		position.x + padding.x + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
+	//		position.y + padding.y
+	//	});
+	//	options[i].description.setPosition
+	//	({
+	//		position.x + padding.x * 1.5f * (i + 1) + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
+	//		position.y + padding.y * 1.75f + options[i].name.getCharacterSize()
+	//	});
+	//	options[i].button.setPosition
+	//	({
+	//		position.x + padding.x * 1.5f * (i + 1) + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
+	//		position.y + padding.y * 3.5f + options[i].name.getCharacterSize() + options[i].description.getGlobalBounds().size.y
+	//	});
+	//}
 }

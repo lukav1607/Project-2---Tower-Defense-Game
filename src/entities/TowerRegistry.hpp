@@ -21,6 +21,7 @@ namespace TowerRegistry
     enum class Type
     {
         Bullet,
+		Splash,
         Slow,
         Count
     };
@@ -33,6 +34,8 @@ namespace TowerRegistry
         int damage;
         float range;
         float fireRate;
+        // Used by Splash Towers
+        float splashRadius;    // radius of the splash damage
 		// Used by Slow Towers
         float slowAmount;      // e.g., 0.5f means -50% speed
         float slowDuration;    // in seconds
