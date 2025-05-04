@@ -11,6 +11,7 @@
 #include "Game.hpp"
 #include "Utility.hpp"
 #include "../entities/BulletTower.hpp"
+#include "../entities/SlowTower.hpp"
 
 const bool Game::IS_DEBUG_MODE_ON = false;
 
@@ -153,36 +154,20 @@ void Game::update(float fixedTimeStep)
 	}
 	case GameState::Gameplay:
 	{
-		updateWave(fixedTimeStep);
-
-		for (auto& enemy : enemies)
-		{
-			enemy.update(fixedTimeStep, grid);
-			if (enemy.hasReachedEnd())
-				lives--;
-		}
+		updateWave(fixedTimeStep);		
 
 		for (auto& tower : towers)
 		{
 			tower->update(fixedTimeStep, enemies);
 
-			for (auto& enemy : enemies)
-			{
-				if (enemy.isDead())
-				{
-					*gold += enemy.getWorth();
-					break;
-				}
-
-				if (Utility::distance(tower->getPixelPosition(), enemy.getPixelPosition()) <= tower->getAttributes().at(tower->getLevel()).range)
-				{
-					if (tower->canFire())
-					{
-						tower->fireAt(enemy.getPixelPosition());
-						break; // Make sure we only shoot one enemy at a time
-					}
-				}
-			}
+				//if (Utility::distance(tower->getPixelPosition(), enemy.getPixelPosition()) <= tower->getAttributes().at(tower->getLevel()).range)
+				//{
+				//	if (tower->canFire())
+				//	{
+				//		tower->fireAt(enemy.getPixelPosition());
+				//		break; // Make sure we only shoot one enemy at a time
+				//	}
+				//}
 			if (tower->isMarkedForUpgrade())
 			{
 				if (tower->tryUpgrade(*gold))
@@ -192,6 +177,15 @@ void Game::update(float fixedTimeStep)
 			{
 				*gold += tower->getAttributes().at(tower->getLevel()).sellCost;
 			}
+		}
+		for (auto& enemy : enemies)
+		{
+			enemy.update(fixedTimeStep, grid);
+
+			if (enemy.hasReachedEnd())
+				lives--;
+			if (enemy.isDead())
+				*gold += enemy.getWorth();
 		}
 
 		// Remove towers that are sold
@@ -220,6 +214,11 @@ void Game::update(float fixedTimeStep)
 			case TowerRegistry::Type::Bullet:
 			{
 				towers.push_back(std::make_shared<BulletTower>(ui.getSelectedTile()));
+				break;
+			}
+			case TowerRegistry::Type::Slow:
+			{
+				towers.push_back(std::make_shared<SlowTower>(ui.getSelectedTile()));
 				break;
 			}
 			}

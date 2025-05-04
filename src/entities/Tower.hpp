@@ -19,7 +19,7 @@
 class Tower
 {
 public:
-	Tower(TowerRegistry::Type type, sf::Vector2i tilePosition);
+	Tower(TowerRegistry::Type type, sf::Color color, sf::Vector2i tilePosition);
 	Tower(const Tower&) = default;
 	Tower& operator=(const Tower&) = default;
 	virtual ~Tower() = default;
@@ -28,8 +28,8 @@ public:
 	virtual void render(float interpolationFactor, sf::RenderWindow& window) = 0;
 
 	virtual void fireAt(sf::Vector2f target) = 0;
-	virtual bool tryUpgrade(int gold) = 0;
 
+	bool tryUpgrade(int gold);
 	inline void markForUpgrade() { m_isMarkedForUpgrade = true; }
 	inline void markForSale() { m_isMarkedForSale = true; }
 	inline void setRangeCircleVisible(bool isVisible) { isRangeCircleVisible = isVisible; }
@@ -62,6 +62,7 @@ protected:
 	sf::RectangleShape shape;
 	sf::CircleShape rangeCircle;
 	bool isRangeCircleVisible;
+	sf::Color towerColor;
 
 	bool m_isMarkedForSale;
 	bool m_isMarkedForUpgrade;

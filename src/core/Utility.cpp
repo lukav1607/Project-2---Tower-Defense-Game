@@ -11,6 +11,7 @@
 #include <sstream>
 #include <random>
 #include <map>
+#include <cmath>
 #include "Utility.hpp"
 #include "Grid.hpp"
 
@@ -43,6 +44,59 @@ sf::Vector2f Utility::normalize(sf::Vector2f vector)
 		return vector / length;
 
 	return { 0.f, 0.f };
+}
+
+std::optional<sf::Vector2f> Utility::predictTargetIntercept(
+	const sf::Vector2f& shooterPos,
+	const sf::Vector2f& targetPos,
+	const sf::Vector2f& targetVelocity,
+	float projectileSpeed)
+{
+	// Calculate the relative position and velocity vectors
+	const sf::Vector2f toTarget = targetPos - shooterPos;
+
+	// Calculate the coefficients of the quadratic equation and the discriminant
+	float a = targetVelocity.x * targetVelocity.x + targetVelocity.y * targetVelocity.y - projectileSpeed * projectileSpeed;
+	float b = 2 * (toTarget.x * targetVelocity.x + toTarget.y * targetVelocity.y);
+	float c = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+	float discriminant = b * b - 4 * a * c;
+
+	// If there's no solution or the projectile is too slow
+	if (discriminant < 0 || std::abs(a) < 1e-6f)
+		return std::nullopt;
+
+	// Calculate the two possible times of intercept
+	float sqrtDiscriminant = std::sqrt(discriminant);
+	float t1 = (-b - sqrtDiscriminant) / (2 * a);
+	float t2 = (-b + sqrtDiscriminant) / (2 * a);
+
+	// Choose the earliest positive time
+	float t = std::min(t1, t2);	// If both are positive, use the smaller one
+	if (t < 0.f)
+		t = std::max(t1, t2); // If one is negative, use the other
+	if (t < 0.f)
+		return std::nullopt; // If both are negative, return nullopt
+
+	// Return the intercept position
+	return targetPos + targetVelocity * t;
+}
+
+sf::Color Utility::blendColors(sf::Color base, sf::Color overlay)
+{
+	float alpha = overlay.a / 255.f;
+
+	auto blendChannel = [&](std::uint8_t baseChannel, std::uint8_t overlayChannel) 
+	{
+		return static_cast<std::uint8_t>(baseChannel * (1.f - alpha) + overlayChannel * alpha);
+	};
+
+	return sf::Color
+	(
+		blendChannel(base.r, overlay.r),
+		blendChannel(base.g, overlay.g),
+		blendChannel(base.b, overlay.b),
+		255
+	);
 }
 
 sf::Vector2f Utility::tileToPixelPosition(int col, int row, bool getCenterOfTile)

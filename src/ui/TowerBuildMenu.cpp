@@ -136,18 +136,18 @@ void TowerBuildMenu::updateLayout(sf::Vector2u windowSize)
 	{
 		options[i].name.setPosition
 		({
-			position.x + padding.x + options[i].name.getGlobalBounds().size.x * i,
+			position.x + padding.x + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
 			position.y + padding.y
 		});
 		options[i].description.setPosition
 		({
-			position.x + padding.x * 1.5f + options[i].name.getGlobalBounds().size.x * i,
-			position.y + padding.y * (i + 2) + options[i].name.getGlobalBounds().size.y
+			position.x + padding.x * 1.5f + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
+			position.y + padding.y * 1.75f + options[i].name.getGlobalBounds().size.y
 		});
 		options[i].button.setPosition
 		({
-			position.x + padding.x * 1.5f + options[i].name.getGlobalBounds().size.x * i,
-			position.y + padding.y * (i + 3) + options[i].name.getGlobalBounds().size.y + options[i].description.getGlobalBounds().size.y
+			position.x + padding.x * 1.5f + options[i].name.getGlobalBounds().size.x * (i * 1.33f),
+			position.y + padding.y * 3.5f + options[i].name.getGlobalBounds().size.y + options[i].description.getGlobalBounds().size.y
 		});
 	}
 }

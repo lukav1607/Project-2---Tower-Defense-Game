@@ -11,9 +11,10 @@
 
 #include "Tower.hpp"
 
-Tower::Tower(TowerRegistry::Type type, sf::Vector2i tilePosition) :
+Tower::Tower(TowerRegistry::Type type, sf::Color color, sf::Vector2i tilePosition) :
 	isSelected(false),
 	type(type),
+	towerColor(color),
 	position(Utility::tileToPixelPosition(tilePosition)),
 	timeSinceLastShot(0.f),
 	level(0),
@@ -24,4 +25,34 @@ Tower::Tower(TowerRegistry::Type type, sf::Vector2i tilePosition) :
 	// Fetch the tower metadata attributes from the registry
 	const TowerRegistry::TowerMetadata& metadata = TowerRegistry::getTowerMetadataRegistry()[static_cast<int>(type)];
 	attributes = metadata.attributes;
+	
+	shape.setSize({ 60.f, 60.f });
+	shape.setFillColor(towerColor);
+	shape.setOrigin({ shape.getSize().x / 2.f, shape.getSize().y / 2.f });
+	shape.setPosition(position);
+
+	rangeCircle.setRadius(attributes.at(level).range);
+	rangeCircle.setOrigin({ rangeCircle.getRadius(), rangeCircle.getRadius() });
+	rangeCircle.setFillColor(sf::Color(0, 0, 0, 15));
+	rangeCircle.setOutlineColor(sf::Color(0, 0, 0, 50));
+	rangeCircle.setOutlineThickness(2.f);
+	rangeCircle.setPosition(position);
+	rangeCircle.setPointCount(100);
+}
+
+bool Tower::tryUpgrade(int gold)
+{
+	if (level >= getMaxLevel())
+		return false;
+
+	if (gold >= attributes.at(level + 1).buyCost)
+	{
+		level++;
+		rangeCircle.setRadius(attributes.at(level).range);
+		rangeCircle.setOrigin({ rangeCircle.getRadius(), rangeCircle.getRadius() });
+		rangeCircle.setPosition(position);
+		m_isMarkedForUpgrade = false;
+		return true;
+	}
+	return false;
 }

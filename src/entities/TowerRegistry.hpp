@@ -21,16 +21,21 @@ namespace TowerRegistry
     enum class Type
     {
         Bullet,
+        Slow,
         Count
     };
 
     struct AttributesPerLevel
     {
+		// General attributes used by most towers
         int buyCost;
         int sellCost;
         int damage;
         float range;
         float fireRate;
+		// Used by Slow Towers
+        float slowAmount;      // e.g., 0.5f means -50% speed
+        float slowDuration;    // in seconds
     };
 
     struct TowerMetadata

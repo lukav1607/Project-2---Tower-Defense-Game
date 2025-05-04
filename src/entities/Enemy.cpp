@@ -15,9 +15,11 @@ const float Enemy::BASE_SPEED = 70.f;
 const int Enemy::BASE_HEALTH = 2;
 
 Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
+	defaultColor(sf::Color(71, 28, 28)),
 	size(15.f),
 	direction(1.f, 0.f),
-	speed(speed),
+	baseSpeed(speed),
+	currentSpeed(speed),
 	health(health),
 	m_hasReachedEnd(false)
 {
@@ -30,7 +32,7 @@ Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
 	worth = std::floorf((speed * health / 2.f) / 50.f);
 
 	shape.setRadius(size);
-	shape.setFillColor(sf::Color(71, 28, 28));
+	shape.setFillColor(defaultColor);
 	shape.setOrigin({ size, size });
 	shape.setPosition(positionCurrent);
 }
@@ -58,8 +60,10 @@ void Enemy::update(float fixedTimeStep, const Grid& grid)
 		}
 	}
 
+	updateStatusEffects(fixedTimeStep);
+
 	positionPrevious = positionCurrent;
-	positionCurrent += direction * speed * fixedTimeStep;
+	positionCurrent += direction * currentSpeed * fixedTimeStep;
 
 	if (positionCurrent.x >= (grid.getSize().x * Grid::TILE_SIZE) + size )
 	{
@@ -72,6 +76,52 @@ void Enemy::render(float interpolationFactor, sf::RenderWindow& window)
 {
 	shape.setPosition(Utility::interpolate(positionPrevious, positionCurrent, interpolationFactor));
 	window.draw(shape);
+}
+
+void Enemy::applyStatusEffect(const StatusEffect& effect)
+{
+	// Check if the same effect type is already applied
+	for (auto& existingEffect : statusEffects)
+	{
+		if (existingEffect.type == effect.type)
+		{
+			// If the effect is already applied, update its properties
+			existingEffect.amount = effect.amount;
+			existingEffect.duration = effect.duration;
+			existingEffect.timer = effect.timer;
+			return;
+		}
+	}
+	// If the effect isn't applied, apply it
+	statusEffects.push_back(effect);
+}
+
+void Enemy::updateStatusEffects(float fixedTimeStep)
+{
+	float slowFactor = 1.f;
+	sf::Color overlayColor = defaultColor;
+
+	// Update status effects
+	for (auto it = statusEffects.begin(); it != statusEffects.end();)
+	{
+		it->timer += fixedTimeStep;
+
+		if (it->timer >= it->duration)
+		{
+			it = statusEffects.erase(it);
+			continue;
+		}
+		if (it->type == StatusEffect::Type::Slow)
+		{
+			overlayColor = it->overlayColor;
+			float thisSlowFactor = 1.f - it->amount;
+			slowFactor = std::min(slowFactor, thisSlowFactor);
+		}
+		++it;
+	}
+
+	shape.setFillColor(Utility::blendColors(defaultColor, overlayColor));
+	currentSpeed = baseSpeed * slowFactor;
 }
 
 void Enemy::takeDamage(int damage)

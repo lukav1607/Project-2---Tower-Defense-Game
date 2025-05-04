@@ -1,8 +1,8 @@
 // ================================================================================================
-// File: BulletTower.hpp
+// File: SlowTower.hpp
 // Author: Luka Vukorepa (https://github.com/lukav1607)
 // Created: May 4, 2025
-// Description: Defines the BulletTower class, which represents a tower that shoots bullets at enemies.
+// Description: Defines the SlowTower class, which represents a tower that slows down enemies.
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
@@ -12,33 +12,27 @@
 
 #include "Tower.hpp"
 
-class BulletTower : public Tower
+class SlowTower : public Tower
 {
 public:
-	BulletTower(sf::Vector2i tilePosition);
-	BulletTower(const BulletTower&) = default;
-	BulletTower& operator=(const BulletTower&) = default;
+	SlowTower(sf::Vector2i tilePosition);
+	SlowTower(const SlowTower&) = default;
+	SlowTower& operator=(const SlowTower&) = default;
 
 	void update(float fixedTimeStep, std::vector<Enemy>& enemies) override;
 	void render(float interpolationFactor, sf::RenderWindow& window) override;
 
 	void fireAt(sf::Vector2f target) override;
 
-	inline std::string getName() const override { return "Bullet Tower"; }
+	inline std::string getName() const override { return "Slow Tower"; }
 
 private:
 	inline int getBaseBuyCost() const override { return attributes[0].buyCost; }
 
-	struct Bullet
-	{
-		static constexpr float SPEED = 1000.f;
-		bool hasHitEnemy = false;
-		sf::CircleShape shape;
-		sf::Vector2f positionCurrent;
-		sf::Vector2f positionPrevious;
-		sf::Vector2f direction;
-	};
-	std::vector<Bullet> bullets;
+	const float PULSE_DURATION = 0.3f;
+	float pulseTimer;
+	bool isPulsing;
+	sf::CircleShape pulseCircle;
 
-	sf::Color bulletColor;
+	sf::Color effectOverlayColor;
 };

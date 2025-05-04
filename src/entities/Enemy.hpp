@@ -18,6 +18,25 @@
 class Enemy : public Entity
 {
 public:
+	struct StatusEffect
+	{
+		enum class Type
+		{
+			Slow
+		};
+		inline StatusEffect(StatusEffect::Type type, sf::Color overlayColor, float amount, float duration) :
+			type(type),
+			overlayColor(overlayColor),
+			amount(amount),
+			duration(duration)
+		{}
+		Type type;
+		sf::Color overlayColor;
+		float amount;     // e.g., 0.5 for -50% speed
+		float duration;   // in seconds
+		float timer = 0.f;
+	};
+
 	Enemy() = default;
 	Enemy(sf::Vector2i spawnTile, float speed, int health);
 	Enemy(const Enemy&) = default;
@@ -27,13 +46,16 @@ public:
 	void update(float fixedTimeStep, const Grid& grid) override;
 	void render(float interpolationFactor, sf::RenderWindow& window) override;
 
+	void applyStatusEffect(const StatusEffect& effect);
+	void updateStatusEffects(float fixedTimeStep);
 	void takeDamage(int damage);
 
 	inline bool isDead() const { return health <= 0; }
 	inline bool hasReachedEnd() const { return m_hasReachedEnd; }
 	inline bool hasStartedPath() const { return positionCurrent.x > 0; }
 	inline int getWorth() const { return worth; }
-	sf::Vector2f getPixelPosition() const { return positionCurrent; }
+	inline sf::Vector2f getPixelPosition() const { return positionCurrent; }
+	inline sf::Vector2f getVelocity() const { return direction * currentSpeed; }
 	inline float getSize() const { return size; }
 
 	static const float BASE_SPEED;
@@ -46,11 +68,15 @@ private:
 	bool isTileBelowPathable(const Grid& grid) const;
 
 	sf::CircleShape shape;
+	sf::Color defaultColor;
 	float size;
+
+	std::vector<StatusEffect> statusEffects;
+	float baseSpeed;
+	float currentSpeed;
 
 	sf::Vector2i previousTile;
 	sf::Vector2f direction;
-	float speed;
 	bool m_hasReachedEnd;
 
 	int health;

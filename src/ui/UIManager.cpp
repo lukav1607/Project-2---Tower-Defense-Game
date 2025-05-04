@@ -25,7 +25,7 @@ const float UIManager::BACKGROUND_OUTLINE_THICKNESS = 3.f;
 UIManager::UIManager(const sf::Font& font, sf::Vector2u windowSize, const std::shared_ptr<int>& gold) :
 	hud(font, { 1200, 1200 }),
 	towerInfoMenu(font, "Tower Info", { 300.f, 275.f }, gold),
-	towerBuildMenu(font, "Choose a Tower to Build", { 400.f, 400.f }, gold)
+	towerBuildMenu(font, "Choose a Tower to Build", { 415.f, 250.f }, gold)
 {}
 
 void UIManager::processInput(sf::Vector2f mousePosition, bool isMouseReleased)
