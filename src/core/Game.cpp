@@ -19,7 +19,7 @@ Game::Game() :
 	isVSyncEnabled(true),
 	gameState(GameState::Gameplay),
 	lives(5),
-	gold(1140),
+	gold(std::make_shared<int>(100)),
 	grid(10, 8),
 	timeBetweenWaves(10.f),
 	timeSinceLastWaveEnded(10.f),
@@ -29,7 +29,8 @@ Game::Game() :
 	enemiesPerWave(5),
 	enemiesSpawnedThisWave(0),
 	waitingForFirstEnemyInWave(false),
-	ui(WINDOW_SIZE)
+	font("assets/fonts/BRLNSR.TTF"),
+	ui(font, WINDOW_SIZE, gold)
 {
 	auto settings = sf::ContextSettings();
 	settings.antiAliasingLevel = antiAliasingLevel;
@@ -80,45 +81,53 @@ void Game::processInput()
 	}
 	case GameState::Gameplay:
 	{
-		mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-		bool isLeftMouseReleased = Utility::isMouseButtonReleased(sf::Mouse::Button::Left);
-		bool isRightMouseReleased = Utility::isMouseButtonReleased(sf::Mouse::Button::Right);
+		sf::Vector2f mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+		sf::Vector2i hoveredTile = Utility::pixelToTilePosition(mousePosition);
 
-		ui.processInput(mousePosition, isLeftMouseReleased);
+		bool isLeftReleased = Utility::isMouseButtonReleased(sf::Mouse::Button::Left);
+		bool isRightReleased = Utility::isMouseButtonReleased(sf::Mouse::Button::Right);
 
-		if (isRightMouseReleased)
+		ui.processInput(mousePosition, isLeftReleased);
+
+		if (isRightReleased)
 		{
-			ui.clearSelection();
-
-			sf::Vector2i clickedTile = Utility::pixelToTilePosition(mousePosition);
-
-			// Try to find the tower at the clicked tile
-			auto it = std::find_if(towers.begin(), towers.end(), [&](std::shared_ptr<Tower> tower)
-				{ return tower->getTilePosition() == clickedTile; });
-
-			// If there is NOT a tower at the clicked tile and the tile is buildable
-			if (it == towers.end() && grid.getTileType(clickedTile) == Tile::Type::Buildable)
-			{
-				ui.setSelectedTile(clickedTile);
-				
-				towers.emplace_back(std::make_shared<Tower>(Tower::Type::Bullet, clickedTile));
-				int previousGold = gold;
-				gold -= towers.back()->attributes[towers.back()->getLevel()].buyCost;
-				if (gold < 0)
+			auto towerAtTile = std::find_if(towers.begin(), towers.end(),
+				[hoveredTile](const std::shared_ptr<Tower>& tower)
 				{
-					towers.pop_back();
-					gold = previousGold;
+					return tower->getTilePosition() == hoveredTile;
+				});
+
+			if (!ui.isAnyMenuHoveredOver())
+			{
+				// If a tower is found at the hovered tile
+				if (towerAtTile != towers.end())
+				{
+					ui.dismissAllMenus();
+					ui.showTowerInfoMenu(*towerAtTile, WINDOW_SIZE);
+				}
+				// If no tower is found at the hovered tile
+				else
+				{
+					ui.dismissAllMenus();
+					grid.deselectAllTiles();
+					if (grid.getTileType(hoveredTile) == Tile::Type::Buildable)
+					{
+						ui.showTowerBuildMenu(hoveredTile, WINDOW_SIZE);
+						grid.selectTile(hoveredTile);
+					}
 				}
 			}
-			else if (it != towers.end() && grid.getTileType(clickedTile) == Tile::Type::Buildable)
+		}
+
+		if (isLeftReleased)
+		{
+			if (!ui.isAnyMenuHoveredOver())
 			{
-				ui.setSelectedTower(*it);
+				ui.dismissAllMenus();
+				grid.deselectAllTiles();
 			}
 		}
-		else if (isLeftMouseReleased && !ui.isAnElementHoveredOver(mousePosition))
-		{
-			ui.clearSelection();
-		}
+
 		break;
 	}
 	case GameState::GameOver:
@@ -155,7 +164,7 @@ void Game::update(float fixedTimeStep)
 			{
 				if (enemy.isDead())
 				{
-					gold += enemy.getWorth();
+					*gold += enemy.getWorth();
 					break;
 				}
 
@@ -170,13 +179,12 @@ void Game::update(float fixedTimeStep)
 			}
 			if (tower->isMarkedForUpgrade())
 			{
-				if (tower->tryUpgrade(gold))
-					gold -= tower->attributes[tower->getLevel()].buyCost;
+				if (tower->tryUpgrade(*gold))
+					*gold -= tower->attributes[tower->getLevel()].buyCost;
 			}
 			if (tower->isMarkedForSale())
 			{
-				gold += tower->attributes[tower->getLevel()].sellCost;
-				break;
+				*gold += tower->attributes[tower->getLevel()].sellCost;
 			}
 		}
 
@@ -196,7 +204,15 @@ void Game::update(float fixedTimeStep)
 			enemies.end()
 		);
 
-		ui.update(fixedTimeStep, mousePosition, lives, gold, wave);
+		if (ui.getRequestedTowerType() != Tower::Type::Count && ui.getSelectedTile() != sf::Vector2i(-1, -1))
+		{
+			towers.push_back(std::make_shared<Tower>(ui.getRequestedTowerType(), ui.getSelectedTile()));
+			*gold -= towers.back()->getBaseBuyCost();
+			ui.dismissAllMenus();
+			grid.deselectAllTiles();
+		}
+
+		ui.update(fixedTimeStep, lives, *gold, wave);
 
 		break;
 	}

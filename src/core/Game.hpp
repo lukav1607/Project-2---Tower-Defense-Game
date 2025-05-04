@@ -53,7 +53,7 @@ private:
 
 	// Gameplay data
 	int lives;
-	int gold;
+	std::shared_ptr<int> gold;
 
 	Grid grid;
 
@@ -70,6 +70,6 @@ private:
 	int enemiesSpawnedThisWave;
 	bool waitingForFirstEnemyInWave;
 
+	sf::Font font;
 	UIManager ui;
-	sf::Vector2f mousePosition;
 };

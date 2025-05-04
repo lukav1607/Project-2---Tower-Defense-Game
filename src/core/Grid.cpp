@@ -22,12 +22,21 @@ Grid::Grid(int cols, int rows) :
 
 void Grid::render(float interpolationFactor, sf::RenderWindow& window)
 {
+	Tile* selectedTile = nullptr;
+
 	for (auto& row : tiles)
 	{
 		for (auto& tile : row)
 		{
 			tile.render(interpolationFactor, window);
+			if (tile.isSelected)
+				selectedTile = &tile;
 		}
+	}
+
+	if (selectedTile)
+	{
+		selectedTile->render(interpolationFactor, window);
 	}
 }
 
@@ -132,6 +141,33 @@ void Grid::generateNewRandomLevel(int cols, int rows)
 
 		tiles = std::move(level);
 	}
+}
+
+void Grid::selectTile(sf::Vector2i tilePosition)
+{
+	if (tilePosition.x < 0 || tilePosition.x >= cols || tilePosition.y < 0 || tilePosition.y >= rows)
+		return;
+
+	deselectAllTiles();
+	tiles[tilePosition.y][tilePosition.x].isSelected = true;
+}
+
+void Grid::deselectAllTiles()
+{
+	for (auto& row : tiles)
+	{
+		for (auto& tile : row)
+		{
+			tile.isSelected = false;
+		}
+	}
+}
+
+void Grid::markTileAsTower(sf::Vector2i tilePosition)
+{
+	if (tilePosition.x < 0 || tilePosition.x >= cols || tilePosition.y < 0 || tilePosition.y >= rows)
+		return;
+	tiles[tilePosition.x][tilePosition.y].markAsTower();
 }
 
 Tile::Type Grid::getTileType(int col, int row) const

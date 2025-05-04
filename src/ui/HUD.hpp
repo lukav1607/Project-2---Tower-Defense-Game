@@ -21,10 +21,9 @@ public:
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
 private:
+	int lives, gold, wave;
 
 	sf::Text livesText;
 	sf::Text goldText;
 	sf::Text waveText;
-
-	sf::Vector2u windowSize;
 };

@@ -10,7 +10,9 @@
 #include "HUD.hpp"
 
 HUD::HUD(const sf::Font& font, sf::Vector2u windowSize) :
-	windowSize(windowSize),
+	lives(0),
+	gold(0),
+	wave(0),
 	livesText(font, "Level: N/A", 48U),
 	goldText(font, "Gold: N/A", 48U),
 	waveText(font, "Wave: N/A", 48U)
@@ -33,9 +35,21 @@ HUD::HUD(const sf::Font& font, sf::Vector2u windowSize) :
 
 void HUD::update(float fixedTimeStep, int lives, int gold, int wave)
 {
-	livesText.setString("Lives: " + std::to_string(lives));
-	goldText.setString("Gold: " + std::to_string(gold));
-	waveText.setString("Wave: " + std::to_string(wave));
+	if (this->lives != lives)
+	{
+		this->lives = lives;
+		livesText.setString("Lives: " + std::to_string(lives));
+	}
+	if (this->gold != gold)
+	{
+		this->gold = gold;
+		goldText.setString("Gold: " + std::to_string(gold));
+	}
+	if (this->wave != wave)
+	{
+		this->wave = wave;
+		waveText.setString("Wave: " + std::to_string(wave));
+	}
 }
 
 void HUD::render(float interpolationFactor, sf::RenderWindow& window)

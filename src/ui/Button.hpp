@@ -15,23 +15,32 @@
 class Button
 {
 public:
-	Button(sf::Vector2f size, const sf::Font& font, const std::string& text);
+	Button(const sf::Font& font, const std::string& text, sf::Vector2f size);
 
 	void processInput(sf::Vector2f mousePosition, bool isMouseReleased);
-	void update(float fixedTimeStep, bool isActive);
+	void update(float fixedTimeStep);
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
+	void setIsActive(bool isActive);
 	void setPosition(sf::Vector2f position);
 	void setText(const std::string& text);
 
 	inline bool isHovered() const { return m_isHovered; }
 	inline bool isClicked() const { return m_isClicked; }
-	sf::Vector2f getSize() const { return shape.getSize(); }
+	inline bool isActive() const { return m_isActive; }
+	sf::Vector2f getSize() const { return background.getSize(); }
 
 private:
-	sf::RectangleShape shape;
+	void updateColors();
+	void centerText();
+
+	sf::Vector2f position;
+	sf::RectangleShape background;
 	sf::Text text;
 
+	bool m_isActive;
+	bool wasHoveredLastFrame;
 	bool m_isHovered;
+	bool needsColorUpdate; // When true, the button needs to update its color based on hover state
 	bool m_isClicked;
 };

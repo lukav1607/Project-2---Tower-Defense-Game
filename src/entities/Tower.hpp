@@ -21,7 +21,8 @@ class Tower
 public:
 	enum class Type
 	{
-		Bullet
+		Bullet,
+		Count
 	};
 
 	Tower(Type type, sf::Vector2i tilePosition);
@@ -43,6 +44,7 @@ public:
 	inline int getLevel() const { return level; }
 	inline int getMaxLevel() const { return LEVEL_MAX; }
 	inline int getBaseBuyCost() const { return attributes[0].buyCost; }
+	std::string getName() const;
 	inline bool canFire() const { return timeSinceLastShot >= attributes[level].fireRate; }
 	inline bool isMarkedForSale() const { return m_isMarkedForSale; }
 	inline bool isMarkedForUpgrade() const { return m_isMarkedForUpgrade; }

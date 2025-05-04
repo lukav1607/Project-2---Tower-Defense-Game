@@ -11,6 +11,7 @@
 #include "Utility.hpp"
 
 Tile::Tile(Type type, int x, int y, float size) :
+	isSelected(false),
 	type(type),
 	x(x),
 	y(y),
@@ -18,8 +19,6 @@ Tile::Tile(Type type, int x, int y, float size) :
 {
 	shape.setSize({ size, size });
 	shape.setPosition({ x * size, y * size });
-	//shape.setOutlineColor(sf::Color::White);
-	//shape.setOutlineThickness(0.1f);
 
 	sf::Color pathColor = sf::Color(155, 118, 83);
 	sf::Color grassColor = sf::Color
@@ -43,5 +42,15 @@ Tile::Tile(Type type, int x, int y, float size) :
 
 void Tile::render(float interpolationFactor, sf::RenderWindow& window)
 {
+	if (isSelected)
+	{
+		shape.setOutlineColor(sf::Color(255, 255, 255, 255));
+		shape.setOutlineThickness(4.f);
+	}
+	else
+	{
+		shape.setOutlineColor(sf::Color(0, 0, 0, 0));
+		shape.setOutlineThickness(0.f);
+	}
 	window.draw(shape);
 }

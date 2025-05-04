@@ -24,6 +24,10 @@ public:
 
 	void generateNewRandomLevel(int cols, int rows);
 
+	void selectTile(sf::Vector2i tilePosition);
+	void deselectAllTiles();
+	void markTileAsTower(sf::Vector2i tilePosition);
+
 	inline sf::Vector2u getSize() const { return sf::Vector2u(cols, rows); }
 	inline sf::Vector2i getStartTile() const {	return startTileCoordinates; }
 	Tile::Type getTileType(int col, int row) const;

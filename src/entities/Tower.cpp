@@ -125,6 +125,17 @@ void Tower::fireAt(sf::Vector2f target)
 	timeSinceLastShot = 0.f;
 }
 
+std::string Tower::getName() const
+{
+	switch (type)
+	{
+	case Type::Bullet:
+		return "Bullet Tower";
+	default:
+		return "Unknown Tower";
+	}
+}
+
 Tower::Bullet::Bullet() :
 	hasHitEnemy(false),
 	speed(1000.f)

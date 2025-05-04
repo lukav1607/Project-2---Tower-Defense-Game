@@ -24,6 +24,7 @@ public:
 		End,
 		Pathable,
 		Buildable,
+		Tower,
 		Unassigned
 	};
 
@@ -32,6 +33,9 @@ public:
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
 	Type getType() const { return type; }
+	void markAsTower() { type = Type::Tower; }
+
+	bool isSelected;
 
 private:
 	Type type;

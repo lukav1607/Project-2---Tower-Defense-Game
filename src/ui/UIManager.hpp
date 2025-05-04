@@ -10,26 +10,26 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include "HUD.hpp"
 #include "TowerBuildMenu.hpp"
-#include "TowerInfoPanel.hpp"
-#include "../entities/Tower.hpp"
+#include "TowerInfoMenu.hpp"
 
 class UIManager
 {
 public:
-	UIManager(sf::Vector2u windowSize);
+	UIManager(const sf::Font& font, sf::Vector2u windowSize, const std::shared_ptr<int>& gold);
 
 	void processInput(sf::Vector2f mousePosition, bool isMouseReleased);
-	void update(float fixedTimeStep, sf::Vector2f mousePosition, int lives, int gold, int wave);
+	void update(float fixedTimeStep, int lives, int gold, int wave);
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
-	void setSelectedTile(sf::Vector2i tilePosition);
-	void setSelectedTower(std::shared_ptr<Tower> tower);
-	void clearSelection();
+	void showTowerInfoMenu(std::shared_ptr<Tower> tower, sf::Vector2u windowSize);
+	void showTowerBuildMenu(sf::Vector2i selectedTile, sf::Vector2u windowSize);
+	void dismissAllMenus();
 
-	bool isAnElementHoveredOver(sf::Vector2f mousePosition) const;
+	inline sf::Vector2i getSelectedTile() const { return towerBuildMenu.getSelectedTile(); }
+	inline Tower::Type getRequestedTowerType() const { return towerBuildMenu.getRequestedTowerType(); }
+	bool isAnyMenuHoveredOver() const;
 
 	static const sf::Color TEXT_COLOR;
 	static const sf::Color TEXT_HOVER_COLOR;
@@ -45,11 +45,7 @@ public:
 	static const float BACKGROUND_OUTLINE_THICKNESS;
 
 private:
-	sf::Font font;
-
 	HUD hud;
 	TowerBuildMenu towerBuildMenu;
-	TowerInfoPanel towerInfoPanel;
-
-	sf::Vector2u windowSize;
+	TowerInfoMenu towerInfoMenu;
 };
