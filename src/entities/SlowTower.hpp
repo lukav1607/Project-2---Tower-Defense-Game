@@ -22,12 +22,10 @@ public:
 	void update(float fixedTimeStep, std::vector<Enemy>& enemies) override;
 	void render(float interpolationFactor, sf::RenderWindow& window) override;
 
-	void fireAt(sf::Vector2f target) override;
-
 	inline std::string getName() const override { return "Slow Tower"; }
 
 private:
-	inline int getBaseBuyCost() const override { return attributes[0].buyCost; }
+	void fireAt(sf::Vector2f target) override;
 
 	const float PULSE_DURATION = 0.3f;
 	float pulseTimer;

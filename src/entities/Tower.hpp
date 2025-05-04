@@ -27,8 +27,6 @@ public:
 	virtual void update(float fixedTimeStep, std::vector<Enemy>& enemies) = 0;
 	virtual void render(float interpolationFactor, sf::RenderWindow& window) = 0;
 
-	virtual void fireAt(sf::Vector2f target) = 0;
-
 	bool tryUpgrade(int gold);
 	inline void markForUpgrade() { m_isMarkedForUpgrade = true; }
 	inline void markForSale() { m_isMarkedForSale = true; }
@@ -48,7 +46,7 @@ public:
 	bool isSelected;
 
 protected:
-	virtual int getBaseBuyCost() const = 0;
+	virtual void fireAt(sf::Vector2f target) = 0;
 
 	std::vector<TowerRegistry::AttributesPerLevel> attributes;
 
