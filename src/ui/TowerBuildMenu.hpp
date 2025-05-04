@@ -23,7 +23,7 @@ public:
 	void update(float fixedTimeStep);
 	void render(float interpolationFactor, sf::RenderWindow& window);
 
-	inline Tower::Type getRequestedTowerType() const { return requestedTowerType; }
+	inline TowerRegistry::Type getRequestedTowerType() const { return requestedTowerType; }
 	void setSelectedTile(sf::Vector2i tilePosition, sf::Vector2u windowSize);
 	void clearTileSelection();
 
@@ -39,7 +39,7 @@ private:
 	struct Option
 	{
 		Option(const sf::Font& font);
-		Tower::Type type;
+		TowerRegistry::Type type;
 		sf::Text name;
 		sf::Text description;
 		int buyCost;
@@ -48,47 +48,5 @@ private:
 	std::vector<Option> options;
 
 	sf::Vector2i selectedTile;
-	Tower::Type requestedTowerType;
-
-//public:
-//	TowerBuildMenu(const sf::Font& font, sf::Vector2u windowSize, std::shared_ptr<int> gold);
-//
-//	void processInput(sf::Vector2f mousePosition, bool isMouseReleased);
-//	void update(float fixedTimeStep);
-//	void render(float interpolationFactor, sf::RenderWindow& window);
-//
-//	void show(sf::Vector2i selectedTile);
-//	void hide();
-//	inline void clearRequestedTowerType() { requestedTowerType = Tower::Type::Count; }
-//	inline void setRequestedTowerType(Tower::Type type) { requestedTowerType = type; }
-//	inline void setSelectedTile(sf::Vector2i tilePosition) { selectedTile = tilePosition; }
-//
-//	bool isHovered(sf::Vector2f mousePosition) const;
-//	bool isTileSelected() const { return isOpen; }
-//	Tower::Type getRequestedTowerType() const { return requestedTowerType; }
-//	sf::Vector2i getSelectedTile() const { return selectedTile; }
-//	
-//	std::function<void(Tower::Type, sf::Vector2i)> onTowerSelected;
-//
-//private:
-//	Tower::Type requestedTowerType;
-//
-//	struct Option
-//	{
-//		Option();
-//		Tower::Type type;
-//		std::string name;
-//		std::string description;
-//		int buyCost;
-//		Button button;
-//	};
-//	std::vector<Option> options;
-//
-//	bool isOpen;
-//	std::shared_ptr<int> gold;
-//
-//	sf::RectangleShape background;
-//	sf::Vector2i selectedTile;
-//
-//	sf::Vector2u windowSize;
+	TowerRegistry::Type requestedTowerType;
 };

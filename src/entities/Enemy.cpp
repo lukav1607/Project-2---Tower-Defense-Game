@@ -27,7 +27,7 @@ Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
 
 	previousTile = Utility::pixelToTilePosition(positionCurrent);
 
-	worth = std::floorf((speed * health / 2.f) / 100.f);
+	worth = std::floorf((speed * health / 2.f) / 50.f);
 
 	shape.setRadius(size);
 	shape.setFillColor(sf::Color(71, 28, 28));

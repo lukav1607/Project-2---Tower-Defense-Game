@@ -26,11 +26,11 @@ Button::Button(const sf::Font& font, const std::string& text, sf::Vector2f size)
 
 void Button::processInput(sf::Vector2f mousePosition, bool isMouseReleased)
 {
-	if (!m_isActive) return;
-
+	// Still check if the button is hovered even if it is not active (needed in TowerInfoMenu)
+	m_isHovered = background.getGlobalBounds().contains(mousePosition);
 	m_isClicked = false;
 
-	m_isHovered = background.getGlobalBounds().contains(mousePosition);
+	if (!m_isActive) return;
 
 	if (wasHoveredLastFrame != m_isHovered)
 	{

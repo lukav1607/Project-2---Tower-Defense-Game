@@ -39,6 +39,7 @@ private:
 	void switchGameState(GameState newGameState);
 
 	void updateWave(float fixedTimeStep);
+	void deselectAllTowers();
 
 	// Loop and state management
 	GameState gameState;

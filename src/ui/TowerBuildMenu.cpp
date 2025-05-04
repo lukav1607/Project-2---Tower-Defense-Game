@@ -9,9 +9,10 @@
 
 #include "TowerBuildMenu.hpp"
 #include "UIManager.hpp"
+#include "../entities/TowerRegistry.hpp"
 
 TowerBuildMenu::Option::Option(const sf::Font& font) :
-	type(Tower::Type::Count),
+	type(TowerRegistry::Type::Count),
 	name(font, "N/A", 32U),
 	description(font, "N/A", 24U),
 	buyCost(0),
@@ -22,26 +23,25 @@ TowerBuildMenu::TowerBuildMenu(const sf::Font& font, const std::string& title, s
 	Menu(font, title, size),
 	gold(gold),
 	selectedTile({ -1, -1 }),
-	requestedTowerType(Tower::Type::Count)
+	requestedTowerType(TowerRegistry::Type::Count)
 {
-	for (int i = 0; i < static_cast<int>(Tower::Type::Count); ++i)
-	{
-		Tower dummy(static_cast<Tower::Type>(i), { 0, 0 });
+	const auto& towerRegistry = TowerRegistry::getTowerMetadataRegistry();
 
+	for (const auto& metadata : towerRegistry)
+	{
 		Option option(font);
-		option.type = static_cast<Tower::Type>(i);
-		option.buyCost = dummy.attributes[0].buyCost;
-		option.name.setString(dummy.getName());
+		option.type = metadata.type;
+		option.buyCost = metadata.attributes[0].buyCost;
+		option.name.setString(metadata.name);
 		option.name.setOutlineThickness(UIManager::TEXT_OUTLINE_THICKNESS);
 		option.name.setOutlineColor(UIManager::TEXT_OUTLINE_COLOR);
 		option.description.setString
 		(
-			"Damage: " + std::to_string(dummy.attributes[0].damage) +
-			"\nRange: " + std::to_string(static_cast<int>(dummy.attributes[0].range)) +
-			"\nFire Rate: " + Utility::removeTrailingZeros(dummy.attributes[0].fireRate)
+			"Damage: " + std::to_string(metadata.attributes[0].damage) +
+			"\nRange: " + std::to_string(static_cast<int>(metadata.attributes[0].range)) +
+			"\nFire Rate: " + Utility::removeTrailingZeros(metadata.attributes[0].fireRate)
 		);
-		option.button = Button(font, std::to_string(dummy.getBaseBuyCost()) + std::string("g"), sf::Vector2f(150.f, 50.f));
-
+		option.button = Button(font, std::to_string(metadata.attributes[0].buyCost) + std::string("g"), sf::Vector2f(150.f, 50.f));
 		options.push_back(option);
 	}
 }
@@ -107,7 +107,7 @@ void TowerBuildMenu::setSelectedTile(sf::Vector2i tilePosition, sf::Vector2u win
 void TowerBuildMenu::clearTileSelection()
 {
 	selectedTile = { -1, -1 };
-	requestedTowerType = Tower::Type::Count;
+	requestedTowerType = TowerRegistry::Type::Count;
 	m_isActive = false;
 }
 
@@ -116,7 +116,7 @@ void TowerBuildMenu::updateLayout(sf::Vector2u windowSize)
 	position = Utility::tileToPixelPosition(selectedTile.x, selectedTile.y);
 
 	// Offset the position to center the menu below the tower
-	sf::Vector2f offset = { -background.getSize().x / 2.f, 60.f };
+	sf::Vector2f offset = { -background.getSize().x / 2.f, 70.f };
 	position += offset;
 
 	// Check if the menu goes out of window bounds and adjust the position accordingly

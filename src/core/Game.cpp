@@ -10,6 +10,7 @@
 #include <iostream>
 #include "Game.hpp"
 #include "Utility.hpp"
+#include "../entities/BulletTower.hpp"
 
 const bool Game::IS_DEBUG_MODE_ON = false;
 
@@ -19,7 +20,7 @@ Game::Game() :
 	isVSyncEnabled(true),
 	gameState(GameState::Gameplay),
 	lives(5),
-	gold(std::make_shared<int>(100)),
+	gold(std::make_shared<int>(200)),
 	grid(10, 8),
 	timeBetweenWaves(10.f),
 	timeSinceLastWaveEnded(10.f),
@@ -92,7 +93,7 @@ void Game::processInput()
 		if (isRightReleased)
 		{
 			auto towerAtTile = std::find_if(towers.begin(), towers.end(),
-				[hoveredTile](const std::shared_ptr<Tower>& tower)
+				[hoveredTile](std::shared_ptr<Tower> tower)
 				{
 					return tower->getTilePosition() == hoveredTile;
 				});
@@ -103,13 +104,17 @@ void Game::processInput()
 				if (towerAtTile != towers.end())
 				{
 					ui.dismissAllMenus();
+					grid.deselectAllTiles();
+					deselectAllTowers();
 					ui.showTowerInfoMenu(*towerAtTile, WINDOW_SIZE);
+					(*towerAtTile)->isSelected = true;
 				}
 				// If no tower is found at the hovered tile
 				else
 				{
 					ui.dismissAllMenus();
 					grid.deselectAllTiles();
+					deselectAllTowers();
 					if (grid.getTileType(hoveredTile) == Tile::Type::Buildable)
 					{
 						ui.showTowerBuildMenu(hoveredTile, WINDOW_SIZE);
@@ -125,6 +130,7 @@ void Game::processInput()
 			{
 				ui.dismissAllMenus();
 				grid.deselectAllTiles();
+				deselectAllTowers();
 			}
 		}
 
@@ -168,7 +174,7 @@ void Game::update(float fixedTimeStep)
 					break;
 				}
 
-				if (Utility::distance(tower->getPixelPosition(), enemy.getPixelPosition()) <= tower->attributes[tower->getLevel()].range)
+				if (Utility::distance(tower->getPixelPosition(), enemy.getPixelPosition()) <= tower->getAttributes().at(tower->getLevel()).range)
 				{
 					if (tower->canFire())
 					{
@@ -180,14 +186,15 @@ void Game::update(float fixedTimeStep)
 			if (tower->isMarkedForUpgrade())
 			{
 				if (tower->tryUpgrade(*gold))
-					*gold -= tower->attributes[tower->getLevel()].buyCost;
+					*gold -= tower->getAttributes().at(tower->getLevel()).buyCost;
 			}
 			if (tower->isMarkedForSale())
 			{
-				*gold += tower->attributes[tower->getLevel()].sellCost;
+				*gold += tower->getAttributes().at(tower->getLevel()).sellCost;
 			}
 		}
 
+		// Remove towers that are sold
 		towers.erase(std::remove_if(towers.begin(), towers.end(),
 			[](const std::shared_ptr<Tower>& tower)
 			{
@@ -196,6 +203,7 @@ void Game::update(float fixedTimeStep)
 			towers.end()
 		);
 
+		// Remove enemies that have reached the end or are dead
 		enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
 			[](const Enemy& enemy)
 			{
@@ -204,10 +212,18 @@ void Game::update(float fixedTimeStep)
 			enemies.end()
 		);
 
-		if (ui.getRequestedTowerType() != Tower::Type::Count && ui.getSelectedTile() != sf::Vector2i(-1, -1))
+		// Tower placement logic
+		if (ui.getRequestedTowerType() != TowerRegistry::Type::Count && ui.getSelectedTile() != sf::Vector2i(-1, -1))
 		{
-			towers.push_back(std::make_shared<Tower>(ui.getRequestedTowerType(), ui.getSelectedTile()));
-			*gold -= towers.back()->getBaseBuyCost();
+			switch (ui.getRequestedTowerType())
+			{
+			case TowerRegistry::Type::Bullet:
+			{
+				towers.push_back(std::make_shared<BulletTower>(ui.getSelectedTile()));
+				break;
+			}
+			}
+			*gold -= towers.back()->getAttributes().at(0).buyCost;
 			ui.dismissAllMenus();
 			grid.deselectAllTiles();
 		}
@@ -304,6 +320,12 @@ void Game::updateWave(float fixedTimeStep)
 	{
 		timeSinceLastWaveEnded += fixedTimeStep;
 	}
+}
+
+void Game::deselectAllTowers()
+{
+	for (auto& tower : towers)
+		tower->isSelected = false;
 }
 
 void Game::switchGameState(GameState newGameState)

@@ -50,7 +50,7 @@ void TowerInfoMenu::processInput(sf::Vector2f mousePosition, bool isMouseRelease
 		needsTextUpdate = true;
 	}
 	// Check if the sell button is clicked
-	else if (sellButton.isClicked() && selectedTower)
+	if (sellButton.isClicked() && selectedTower)
 	{
 		selectedTower->markForSale();
 		clearTowerSelection();
@@ -66,11 +66,15 @@ void TowerInfoMenu::update(float fixedTimeStep)
 		updateInfoText();
 		needsTextUpdate = false;
 	}
-
-	if (*gold >= selectedTower->attributes[selectedTower->getLevel() + 1].buyCost)
+	if (selectedTower->getLevel() < selectedTower->getMaxLevel() &&
+		*gold >= selectedTower->getAttributes().at(selectedTower->getLevel() + 1).buyCost)
+	{
 		upgradeButton.setIsActive(true);
+	}
 	else
+	{
 		upgradeButton.setIsActive(false);
+	}
 	
 	upgradeButton.update(fixedTimeStep);
 	sellButton.update(fixedTimeStep);	
@@ -118,7 +122,7 @@ void TowerInfoMenu::updateInfoText()
 {
 	if (!selectedTower) return;
 
-	const auto& attributes = selectedTower->attributes[selectedTower->getLevel()];
+	//const auto& attributes = selectedTower->attributes[selectedTower->getLevel()];
 
 	std::ostringstream ss;
 
@@ -127,22 +131,23 @@ void TowerInfoMenu::updateInfoText()
 	std::string rangeAppend;
 	std::string fireRateAppend;
 
-	sellButton.setText("SELL\n" + std::to_string(attributes.sellCost) + "g");
+	int level = selectedTower->getLevel();
+	sellButton.setText("SELL\n" + std::to_string(selectedTower->getAttributes().at(level).sellCost) + "g");
 
 	if (selectedTower->getLevel() < selectedTower->getMaxLevel())
 	{
+		int nextLevel = selectedTower->getLevel() + 1;
+
 		std::ostringstream upgradeButtonTextSS;
-		upgradeButtonTextSS << "UPGRADE\n" << selectedTower->attributes[selectedTower->getLevel() + 1].buyCost << "g";
+		upgradeButtonTextSS << "UPGRADE\n" << selectedTower->getAttributes().at(nextLevel).buyCost/*attributes[selectedTower->getLevel() + 1].buyCost*/ << "g";
 		upgradeButton.setText(upgradeButtonTextSS.str());
 
 		if (upgradeButton.isHovered())
 		{
-			const auto& nextLevelAttributes = selectedTower->attributes[selectedTower->getLevel() + 1];
-
-			levelAppend = " > " + std::to_string(selectedTower->getLevel() + 2);
-			damageAppend = " > " + std::to_string(nextLevelAttributes.damage);
-			rangeAppend = " > " + std::to_string(static_cast<int>(nextLevelAttributes.range));
-			fireRateAppend = " > " + Utility::removeTrailingZeros(nextLevelAttributes.fireRate);
+			levelAppend = " > " + std::to_string(nextLevel + 1);
+			damageAppend = " > " + std::to_string(selectedTower->getAttributes().at(nextLevel).damage);
+			rangeAppend = " > " + std::to_string(static_cast<int>(selectedTower->getAttributes().at(nextLevel).range));
+			fireRateAppend = " > " + Utility::removeTrailingZeros(selectedTower->getAttributes().at(nextLevel).fireRate);
 		}
 	}
 	else if (selectedTower->getLevel() >= selectedTower->getMaxLevel())
@@ -150,10 +155,10 @@ void TowerInfoMenu::updateInfoText()
 		upgradeButton.setText("UPGRADE\nN/A");
 	}
 
-	ss << "Level: " << selectedTower->getLevel() + 1 << levelAppend << "\n"
-		<< "Damage: " << attributes.damage << damageAppend << "\n"
-		<< "Range: " << static_cast<int>(attributes.range) << rangeAppend << "\n"
-		<< "Fire Rate: " << attributes.fireRate << fireRateAppend;
+	ss << "Level: " << level + 1 << levelAppend << "\n"
+		<< "Damage: " << selectedTower->getAttributes().at(level).damage << damageAppend << "\n"
+		<< "Range: " << static_cast<int>(selectedTower->getAttributes().at(level).range) << rangeAppend << "\n"
+		<< "Fire Rate: " << selectedTower->getAttributes().at(level).fireRate << fireRateAppend;
 
 	infoText.setString(ss.str());
 }
@@ -165,7 +170,7 @@ void TowerInfoMenu::updateLayout(sf::Vector2u windowSize)
 	position = Utility::tileToPixelPosition(selectedTower->getTilePosition().x, selectedTower->getTilePosition().y);
 
 	// Offset the position to center the menu below the tower
-	sf::Vector2f offset = { -background.getSize().x / 2.f, 60.f };
+	sf::Vector2f offset = { -background.getSize().x / 2.f, 70.f };
 	position += offset;
 
 	// Check if the menu goes out of window bounds and adjust the position accordingly

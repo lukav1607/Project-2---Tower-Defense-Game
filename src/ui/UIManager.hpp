@@ -28,7 +28,7 @@ public:
 	void dismissAllMenus();
 
 	inline sf::Vector2i getSelectedTile() const { return towerBuildMenu.getSelectedTile(); }
-	inline Tower::Type getRequestedTowerType() const { return towerBuildMenu.getRequestedTowerType(); }
+	inline TowerRegistry::Type getRequestedTowerType() const { return towerBuildMenu.getRequestedTowerType(); }
 	bool isAnyMenuHoveredOver() const;
 
 	static const sf::Color TEXT_COLOR;
