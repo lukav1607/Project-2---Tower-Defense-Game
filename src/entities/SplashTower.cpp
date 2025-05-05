@@ -1,22 +1,20 @@
 // ================================================================================================
-// File: BulletTower.cpp
+// File: SplashTower.cpp
 // Author: Luka Vukorepa (https://github.com/lukav1607)
-// Created: May 4, 2025
+// Created: May 5, 2025
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
 // ================================================================================================
 
-#include <iostream>
-#include "BulletTower.hpp"
-#include "../core/Utility.hpp"
+#include "SplashTower.hpp"
 
-BulletTower::BulletTower(sf::Vector2i tilePosition) :
-	Tower(TowerRegistry::Type::Bullet, sf::Color(10, 92, 54), tilePosition),
-	bulletColor(sf::Color(5, 46, 27))
+SplashTower::SplashTower(sf::Vector2i tilePosition) :
+	Tower(TowerRegistry::Type::Splash, sf::Color(255, 75, 51), tilePosition),
+	bulletColor(sf::Color(123, 37, 25))
 {}
 
-void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
+void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 {
 	timeSinceLastShot += fixedTimeStep;
 
@@ -34,9 +32,9 @@ void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 
 		for (auto& enemy : enemies)
 		{
-			if (Utility::distance(bullet.positionCurrent, enemy.getPixelPosition()) <= enemy.getSize())
+			if (!bullet.hasHitEnemy && Utility::distance(bullet.positionCurrent, enemy.getPixelPosition()) <= enemy.getSize())
 			{
-				enemy.takeDamage(attributes.at(level).damage);
+				explodeAt(bullet.positionCurrent, enemies);
 				bullet.hasHitEnemy = true;
 				break;
 			}
@@ -62,9 +60,31 @@ void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 				fireAt(target->getPixelPosition()); // Fallback to current position if prediction fails
 		}
 	}
+
+	// Update explosion timers
+	for (size_t i = 0; i < explosions.size(); ++i)
+	{
+		explosionTimers[i] += fixedTimeStep;
+		float t = explosionTimers[i] / EXPLOSION_DURATION;
+
+		if (t >= 1.f)
+		{
+			explosions.erase(explosions.begin() + i);
+			explosionTimers.erase(explosionTimers.begin() + i);
+			continue;
+		}
+
+		float radius = attributes.at(level).splashRadius * t;
+		explosions[i].setRadius(radius);
+		explosions[i].setOrigin({ radius, radius });
+		int alpha = static_cast<int>((1.f - t) * explosionColor.a); // Fade out
+		explosions[i].setFillColor(sf::Color(explosionColor.r, explosionColor.g, explosionColor.b, alpha));
+
+		++i;
+	}
 }
 
-void BulletTower::render(float interpolationFactor, sf::RenderWindow& window)
+void SplashTower::render(float interpolationFactor, sf::RenderWindow& window)
 {
 	if (isRangeCircleVisible)
 		window.draw(rangeCircle);
@@ -76,13 +96,12 @@ void BulletTower::render(float interpolationFactor, sf::RenderWindow& window)
 		bullet.shape.setPosition(Utility::interpolate(bullet.positionPrevious, bullet.positionCurrent, interpolationFactor));
 		window.draw(bullet.shape);
 	}
+	for (const auto& explosion : explosions)
+		window.draw(explosion);
 }
 
-void BulletTower::fireAt(sf::Vector2f target)
+void SplashTower::fireAt(sf::Vector2f target)
 {
-	/*if (target.x <= 0)
-		return;*/
-
 	Bullet bullet;
 
 	bullet.positionCurrent = position;
@@ -90,11 +109,30 @@ void BulletTower::fireAt(sf::Vector2f target)
 
 	bullet.direction = Utility::normalize(target - position);
 
-	bullet.shape.setRadius(5.f);
-	bullet.shape.setOrigin({ bullet.shape.getRadius(), bullet.shape.getRadius() });
+	bullet.shape.setRadius(8.f);
+	bullet.shape.setOrigin({ 8.f, 8.f });
 	bullet.shape.setFillColor(bulletColor);
 
 	bullets.push_back(bullet);
 
 	timeSinceLastShot = 0.f;
+}
+
+void SplashTower::explodeAt(sf::Vector2f location, std::vector<Enemy>& enemies)
+{
+	for (auto& enemy : enemies)
+	{
+		if (Utility::distance(location, enemy.getPixelPosition()) <= attributes.at(level).splashRadius)
+		{
+			enemy.takeDamage(attributes.at(level).damage);
+		}
+	}
+	sf::CircleShape explosion;
+	explosion.setRadius(0.f);
+	explosion.setOrigin({ 0.f, 0.f });
+	explosion.setFillColor(explosionColor);
+	explosion.setPosition(location);
+
+	explosions.push_back(explosion);
+	explosionTimers.push_back(0.f);
 }

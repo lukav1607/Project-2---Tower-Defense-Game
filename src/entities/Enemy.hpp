@@ -75,6 +75,10 @@ private:
 	float baseSpeed;
 	float currentSpeed;
 
+	float damageFlashTimer ;
+	float damageFlashDuration;
+	sf::Color flashColor;
+
 	sf::Vector2i previousTile;
 	sf::Vector2f direction;
 	bool m_hasReachedEnd;

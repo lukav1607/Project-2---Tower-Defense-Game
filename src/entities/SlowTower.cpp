@@ -20,6 +20,8 @@ void SlowTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 {
 	timeSinceLastShot += fixedTimeStep;
 
+	updateSelectionOutline();
+
 	// Check if there are any enemies in range
 	bool enemiesInRange = false;
 	for (const auto& enemy : enemies)
@@ -76,17 +78,6 @@ void SlowTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 
 void SlowTower::render(float interpolationFactor, sf::RenderWindow& window)
 {
-	if (isSelected)
-	{
-		shape.setOutlineColor(sf::Color(255, 255, 255, 255));
-		shape.setOutlineThickness(4.f);
-	}
-	else
-	{
-		shape.setOutlineColor(sf::Color(0, 0, 0, 0));
-		shape.setOutlineThickness(0.f);
-	}
-
 	if (isPulsing)
 		window.draw(pulseCircle);
 

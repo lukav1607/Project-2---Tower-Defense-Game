@@ -1,8 +1,8 @@
 // ================================================================================================
-// File: BulletTower.hpp
+// File: SplashTower.hpp
 // Author: Luka Vukorepa (https://github.com/lukav1607)
-// Created: May 4, 2025
-// Description: Defines the BulletTower class, which represents a tower that shoots bullets at enemies.
+// Created: May 5, 2025
+// Description: Defines the SplashTower class, which represents a tower that deals splash damage to enemies.
 // ================================================================================================
 // License: MIT License
 // Copyright (c) 2025 Luka Vukorepa
@@ -12,22 +12,23 @@
 
 #include "Tower.hpp"
 
-class BulletTower : public Tower
+class SplashTower : public Tower
 {
 public:
-	BulletTower(sf::Vector2i tilePosition);
-	BulletTower(const BulletTower&) = default;
-	BulletTower& operator=(const BulletTower&) = default;
+	SplashTower(sf::Vector2i tilePosition);
+	SplashTower(const SplashTower&) = default;
+	SplashTower& operator=(const SplashTower&) = default;
 
 	void update(float fixedTimeStep, std::vector<Enemy>& enemies) override;
 	void render(float interpolationFactor, sf::RenderWindow& window) override;
 
 private:
 	void fireAt(sf::Vector2f target) override;
+	void explodeAt(sf::Vector2f location, std::vector<Enemy>& enemies);
 
 	struct Bullet
 	{
-		static constexpr float SPEED = 1000.f;
+		static constexpr float SPEED = 400.f;
 		bool hasHitEnemy = false;
 		sf::CircleShape shape;
 		sf::Vector2f positionCurrent;
@@ -35,5 +36,11 @@ private:
 		sf::Vector2f direction;
 	};
 	std::vector<Bullet> bullets;
-	sf::Color bulletColor;
+	sf::Color bulletColor; 
+	
+	std::vector<sf::CircleShape> explosions;
+	std::vector<float> explosionTimers;
+
+	const float EXPLOSION_DURATION = 0.3f;
+	sf::Color explosionColor = sf::Color(255, 100, 0, 150); // orange-ish
 };

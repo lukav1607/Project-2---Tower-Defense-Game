@@ -11,6 +11,7 @@
 #include "Game.hpp"
 #include "Utility.hpp"
 #include "../entities/BulletTower.hpp"
+#include "../entities/SplashTower.hpp"
 #include "../entities/SlowTower.hpp"
 
 const bool Game::IS_DEBUG_MODE_ON = false;
@@ -160,14 +161,6 @@ void Game::update(float fixedTimeStep)
 		{
 			tower->update(fixedTimeStep, enemies);
 
-				//if (Utility::distance(tower->getPixelPosition(), enemy.getPixelPosition()) <= tower->getAttributes().at(tower->getLevel()).range)
-				//{
-				//	if (tower->canFire())
-				//	{
-				//		tower->fireAt(enemy.getPixelPosition());
-				//		break; // Make sure we only shoot one enemy at a time
-				//	}
-				//}
 			if (tower->isMarkedForUpgrade())
 			{
 				if (tower->tryUpgrade(*gold))
@@ -214,6 +207,11 @@ void Game::update(float fixedTimeStep)
 			case TowerRegistry::Type::Bullet:
 			{
 				towers.push_back(std::make_shared<BulletTower>(ui.getSelectedTile()));
+				break;
+			}
+			case TowerRegistry::Type::Splash:
+			{
+				towers.push_back(std::make_shared<SplashTower>(ui.getSelectedTile()));
 				break;
 			}
 			case TowerRegistry::Type::Slow:

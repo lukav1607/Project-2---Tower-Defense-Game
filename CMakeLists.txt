@@ -23,15 +23,17 @@ add_executable(
     "src/core/Grid.cpp"
     "src/entities/Entity.cpp"
     "src/entities/Enemy.cpp"
+    "src/entities/TowerRegistry.cpp"
     "src/entities/Tower.cpp"
     "src/entities/BulletTower.cpp"
+    "src/entities/SplashTower.cpp"
+    "src/entities/SlowTower.cpp"
     "src/ui/UIManager.cpp"
     "src/ui/Button.cpp"
     "src/ui/Menu.cpp"
     "src/ui/HUD.cpp"
     "src/ui/TowerBuildMenu.cpp"
-    "src/ui/TowerInfoMenu.cpp"
-    "src/entities/TowerRegistry.cpp" "src/entities/SlowTower.cpp")
+    "src/ui/TowerInfoMenu.cpp")
 target_compile_features("TowerDefenseGame" PRIVATE cxx_std_17)
 target_link_libraries("TowerDefenseGame" PRIVATE SFML::System SFML::Window SFML::Graphics SFML::Audio)
 target_compile_definitions("TowerDefenseGame" PRIVATE SFML_STATIC)

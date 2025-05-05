@@ -22,8 +22,6 @@ public:
 	void update(float fixedTimeStep, std::vector<Enemy>& enemies) override;
 	void render(float interpolationFactor, sf::RenderWindow& window) override;
 
-	inline std::string getName() const override { return "Slow Tower"; }
-
 private:
 	void fireAt(sf::Vector2f target) override;
 

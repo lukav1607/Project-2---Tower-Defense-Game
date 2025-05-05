@@ -25,7 +25,7 @@ Tower::Tower(TowerRegistry::Type type, sf::Color color, sf::Vector2i tilePositio
 	// Fetch the tower metadata attributes from the registry
 	const TowerRegistry::TowerMetadata& metadata = TowerRegistry::getTowerMetadataRegistry()[static_cast<int>(type)];
 	attributes = metadata.attributes;
-	
+
 	shape.setSize({ 60.f, 60.f });
 	shape.setFillColor(towerColor);
 	shape.setOrigin({ shape.getSize().x / 2.f, shape.getSize().y / 2.f });
@@ -55,4 +55,18 @@ bool Tower::tryUpgrade(int gold)
 		return true;
 	}
 	return false;
+}
+
+void Tower::updateSelectionOutline()
+{
+	if (isSelected)
+	{
+		shape.setOutlineColor(sf::Color(255, 255, 255, 255));
+		shape.setOutlineThickness(4.f);
+	}
+	else
+	{
+		shape.setOutlineColor(sf::Color(0, 0, 0, 0));
+		shape.setOutlineThickness(0.f);
+	}
 }

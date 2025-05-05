@@ -47,13 +47,13 @@ sf::Vector2f Utility::normalize(sf::Vector2f vector)
 }
 
 std::optional<sf::Vector2f> Utility::predictTargetIntercept(
-	const sf::Vector2f& shooterPos,
-	const sf::Vector2f& targetPos,
+	const sf::Vector2f& shooterPosition,
+	const sf::Vector2f& targetPosition,
 	const sf::Vector2f& targetVelocity,
 	float projectileSpeed)
 {
 	// Calculate the relative position and velocity vectors
-	const sf::Vector2f toTarget = targetPos - shooterPos;
+	const sf::Vector2f toTarget = targetPosition - shooterPosition;
 
 	// Calculate the coefficients of the quadratic equation and the discriminant
 	float a = targetVelocity.x * targetVelocity.x + targetVelocity.y * targetVelocity.y - projectileSpeed * projectileSpeed;
@@ -78,7 +78,27 @@ std::optional<sf::Vector2f> Utility::predictTargetIntercept(
 		return std::nullopt; // If both are negative, return nullopt
 
 	// Return the intercept position
-	return targetPos + targetVelocity * t;
+	return targetPosition + targetVelocity * t;
+}
+
+const Enemy* Utility::getClosestEnemyInRange(const sf::Vector2f& origin, const std::vector<Enemy>& enemies, float range)
+{
+	const Enemy* closestEnemy = nullptr;
+	float closestDistanceSq = range * range;
+
+	for (const auto& enemy : enemies)
+	{
+		if (enemy.isDead()) continue;
+
+		float distanceSq = Utility::distanceSquared(origin, enemy.getPixelPosition());
+		if (distanceSq <= closestDistanceSq)
+		{
+			closestDistanceSq = distanceSq;
+			closestEnemy = &enemy;
+		}
+	}
+
+	return closestEnemy;
 }
 
 sf::Color Utility::blendColors(sf::Color base, sf::Color overlay)

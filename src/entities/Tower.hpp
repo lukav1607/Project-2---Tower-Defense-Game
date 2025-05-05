@@ -32,14 +32,13 @@ public:
 	inline void markForSale() { m_isMarkedForSale = true; }
 	inline void setRangeCircleVisible(bool isVisible) { isRangeCircleVisible = isVisible; }
 
-	virtual std::string getName() const = 0;
+	inline const std::string& getName() const {	return TowerRegistry::getTowerMetadataRegistry()[static_cast<int>(type)].name; }
 	const std::vector<TowerRegistry::AttributesPerLevel>& getAttributes() const { return attributes; }
 
     inline sf::Vector2i getTilePosition() const { return Utility::pixelToTilePosition(position); }
     inline sf::Vector2f getPixelPosition() const { return position; }
     inline int getLevel() const { return level; }
 	inline int getMaxLevel() const { return static_cast<int>(attributes.size() - 1); }
-    inline bool canFire() const { return timeSinceLastShot >= attributes.at(level).fireRate; }
     inline bool isMarkedForUpgrade() const { return m_isMarkedForUpgrade; }
 	inline bool isMarkedForSale() const { return m_isMarkedForSale; }
 
@@ -47,6 +46,9 @@ public:
 
 protected:
 	virtual void fireAt(sf::Vector2f target) = 0;
+	void updateSelectionOutline();
+
+	inline bool canFire() const { return timeSinceLastShot >= attributes.at(level).fireRate; }
 
 	std::vector<TowerRegistry::AttributesPerLevel> attributes;
 

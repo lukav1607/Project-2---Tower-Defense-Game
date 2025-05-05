@@ -17,6 +17,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include "../entities/Enemy.hpp"
 
 namespace Utility
 {
@@ -38,10 +39,12 @@ namespace Utility
 	// Predicts the intercept point of a target moving with constant velocity and a projectile moving with constant speed.
 	// Returns std::nullopt if the target is unreachable.
 	std::optional<sf::Vector2f> predictTargetIntercept(
-		const sf::Vector2f& shooterPos,
-		const sf::Vector2f& targetPos,
+		const sf::Vector2f& shooterPosition,
+		const sf::Vector2f& targetPosition,
 		const sf::Vector2f& targetVelocity,
 		float projectileSpeed);
+
+	const Enemy* getClosestEnemyInRange(const sf::Vector2f& origin, const std::vector<Enemy>& enemies, float range);
 
 	// Blends two colors based on the alpha value of the overlay color.
 	sf::Color blendColors(sf::Color base, sf::Color overlay);
