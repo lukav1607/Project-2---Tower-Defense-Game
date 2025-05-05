@@ -12,8 +12,10 @@
 
 #pragma once
 
+#include <vector>
 #include <SFML/Graphics.hpp>
 #include "Entity.hpp"
+#include "DeathEffect.hpp"
 
 class Enemy : public Entity
 {
@@ -50,7 +52,7 @@ public:
 	void updateStatusEffects(float fixedTimeStep);
 	void takeDamage(int damage);
 
-	inline bool isDead() const { return health <= 0; }
+	inline bool isDead() const { return health <= 0 && !isRunningDeathEffect; }
 	inline bool hasReachedEnd() const { return m_hasReachedEnd; }
 	inline bool hasStartedPath() const { return positionCurrent.x > 0; }
 	inline int getWorth() const { return worth; }
@@ -62,6 +64,8 @@ public:
 	static const int BASE_HEALTH;
 
 private:
+	void startDeathEffect();
+
 	bool isPastCenterOfTile(sf::Vector2f center) const;
 	bool isTileToRightPathable(const Grid& grid) const;
 	bool isTileAbovePathable(const Grid& grid) const;
@@ -69,6 +73,7 @@ private:
 
 	sf::CircleShape shape;
 	sf::Color defaultColor;
+	sf::Color currentColor;
 	float size;
 
 	std::vector<StatusEffect> statusEffects;
@@ -85,4 +90,7 @@ private:
 
 	int health;
 	int worth;
+
+	std::vector<DeathEffect> deathEffects;
+	bool isRunningDeathEffect;
 };

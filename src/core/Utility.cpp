@@ -46,6 +46,12 @@ sf::Vector2f Utility::normalize(sf::Vector2f vector)
 	return { 0.f, 0.f };
 }
 
+sf::Vector2f Utility::angleToVector(float angleDegrees)
+{
+	float radians = angleDegrees * (3.14159265f / 180.f);
+	return { std::cos(radians), std::sin(radians) };
+}
+
 std::optional<sf::Vector2f> Utility::predictTargetIntercept(
 	const sf::Vector2f& shooterPosition,
 	const sf::Vector2f& targetPosition,

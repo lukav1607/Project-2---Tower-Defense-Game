@@ -24,7 +24,8 @@ Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
 	damageFlashDuration(0.1f),
 	flashColor(sf::Color::White),
 	health(health),
-	m_hasReachedEnd(false)
+	m_hasReachedEnd(false),
+	isRunningDeathEffect(false)
 {
 	positionCurrent = Utility::tileToPixelPosition(spawnTile.x, spawnTile.y);
 	positionCurrent.x -= size + Grid::TILE_SIZE;
@@ -44,6 +45,7 @@ void Enemy::update(float fixedTimeStep, const Grid& grid)
 {
 	sf::Vector2i currentTile = Utility::pixelToTilePosition(positionCurrent);
 
+	// Update movement direction
 	if (currentTile != previousTile)
 	{
 		sf::Vector2f centerOfCurrentTile = Utility::tileToPixelPosition(currentTile);
@@ -65,6 +67,7 @@ void Enemy::update(float fixedTimeStep, const Grid& grid)
 
 	updateStatusEffects(fixedTimeStep);
 
+	// Update damage flash effect
 	if (damageFlashTimer > 0.f)
 	{
 		damageFlashTimer -= fixedTimeStep;
@@ -72,9 +75,19 @@ void Enemy::update(float fixedTimeStep, const Grid& grid)
 			damageFlashTimer = 0.f;
 	}
 
+	// Update death effect
+	for (auto& effect : deathEffects)
+		effect.update(fixedTimeStep);
+
+	deathEffects.erase(std::remove_if(deathEffects.begin(), deathEffects.end(),
+		[](const DeathEffect& e) { return e.isExpired(); }), deathEffects.end());
+
+	if (isRunningDeathEffect && deathEffects.empty())
+		isRunningDeathEffect = false;
+
+	// Update position
 	positionPrevious = positionCurrent;
 	positionCurrent += direction * currentSpeed * fixedTimeStep;
-
 	if (positionCurrent.x >= (grid.getSize().x * Grid::TILE_SIZE) + size )
 	{
 		m_hasReachedEnd = true;
@@ -93,11 +106,17 @@ void Enemy::render(float interpolationFactor, sf::RenderWindow& window)
 	}
 	else
 	{
-		shape.setFillColor(defaultColor);
+		shape.setFillColor(currentColor);
 	}
+	
+	for (auto& effect : deathEffects)
+		effect.render(interpolationFactor, window);
 
-	shape.setPosition(Utility::interpolate(positionPrevious, positionCurrent, interpolationFactor));
-	window.draw(shape);
+	if (!isRunningDeathEffect)
+	{
+		shape.setPosition(Utility::interpolate(positionPrevious, positionCurrent, interpolationFactor));
+		window.draw(shape);
+	}
 }
 
 void Enemy::applyStatusEffect(const StatusEffect& effect)
@@ -142,7 +161,8 @@ void Enemy::updateStatusEffects(float fixedTimeStep)
 		++it;
 	}
 
-	shape.setFillColor(Utility::blendColors(defaultColor, overlayColor));
+	currentColor = Utility::blendColors(defaultColor, overlayColor);
+	shape.setFillColor(currentColor);
 	currentSpeed = baseSpeed * slowFactor;
 }
 
@@ -150,9 +170,39 @@ void Enemy::takeDamage(int damage)
 {
 	health -= damage;
 	if (health <= 0)
+	{
 		health = 0;
+		startDeathEffect();
+	}
 
 	damageFlashTimer = damageFlashDuration;
+}
+
+void Enemy::startDeathEffect()
+{
+	isRunningDeathEffect = true;
+
+	int amount = Utility::randomNumber(4, 6);
+
+	for (int i = 0; i < amount; ++i)
+	{
+		int size = Utility::randomNumber(3, 6);
+
+		DeathEffect deathEffect;
+		deathEffect.shape.setRadius(static_cast<float>(size));
+		deathEffect.shape.setOrigin({ static_cast<float>(size), static_cast<float>(size) });
+		deathEffect.shape.setFillColor(currentColor);
+		deathEffect.shape.setPosition(positionCurrent);
+		deathEffect.positionCurrent = positionCurrent;
+		deathEffect.positionPrevious = positionCurrent;
+
+		float angle = Utility::randomNumber(0.f, 360.f);
+		float speed = Utility::randomNumber(50.f, 100.f);
+		deathEffect.velocity = Utility::angleToVector(angle) * speed;
+
+		deathEffect.lifetime = Utility::randomNumber(0.4f, 0.6f);
+		deathEffects.push_back(deathEffect);
+	}
 }
 
 bool Enemy::isPastCenterOfTile(sf::Vector2f center) const

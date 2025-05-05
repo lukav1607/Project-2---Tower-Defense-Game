@@ -36,6 +36,9 @@ namespace Utility
 	// Returns the squared distance between two points in 2D space.
 	inline float distanceSquared(sf::Vector2f a, sf::Vector2f b) { return (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y); }
 
+	// Converts an angle in degrees into a normalized direction vector.
+	sf::Vector2f angleToVector(float angleDegrees);
+
 	// Predicts the intercept point of a target moving with constant velocity and a projectile moving with constant speed.
 	// Returns std::nullopt if the target is unreachable.
 	std::optional<sf::Vector2f> predictTargetIntercept(

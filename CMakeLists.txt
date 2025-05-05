@@ -23,6 +23,7 @@ add_executable(
     "src/core/Grid.cpp"
     "src/entities/Entity.cpp"
     "src/entities/Enemy.cpp"
+    "src/entities/DeathEffect.cpp"
     "src/entities/TowerRegistry.cpp"
     "src/entities/Tower.cpp"
     "src/entities/BulletTower.cpp"
