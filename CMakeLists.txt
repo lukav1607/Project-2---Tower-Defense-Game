@@ -37,4 +37,10 @@ add_executable(
     "src/ui/TowerInfoMenu.cpp")
 target_compile_features("TowerDefenseGame" PRIVATE cxx_std_17)
 target_link_libraries("TowerDefenseGame" PRIVATE SFML::System SFML::Window SFML::Graphics SFML::Audio)
-target_compile_definitions("TowerDefenseGame" PRIVATE SFML_STATIC)
+#target_compile_definitions("TowerDefenseGame" PRIVATE SFML_STATIC)
+
+if (WIN32)
+    target_link_libraries("TowerDefenseGame" PRIVATE opengl32 freetype winmm gdi32)
+elseif (UNIX)
+    target_link_libraries("TowerDefenseGame" PRIVATE pthread GL X11 Xrandr)
+endif()
