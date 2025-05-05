@@ -24,16 +24,4 @@ public:
 
 private:
 	void fireAt(sf::Vector2f target) override;
-
-	struct Bullet
-	{
-		static constexpr float SPEED = 1000.f;
-		bool hasHitEnemy = false;
-		sf::CircleShape shape;
-		sf::Vector2f positionCurrent;
-		sf::Vector2f positionPrevious;
-		sf::Vector2f direction;
-	};
-	std::vector<Bullet> bullets;
-	sf::Color bulletColor;
 };

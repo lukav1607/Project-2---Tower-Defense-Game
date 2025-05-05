@@ -10,9 +10,11 @@
 #include "SplashTower.hpp"
 
 SplashTower::SplashTower(sf::Vector2i tilePosition) :
-	Tower(TowerRegistry::Type::Splash, sf::Color(255, 75, 51), tilePosition),
-	bulletColor(sf::Color(123, 37, 25))
-{}
+	Tower(TowerRegistry::Type::Splash, sf::Color(255, 75, 51), tilePosition)
+{
+	this->bulletSpeed = 300.f;
+	this->bulletColor = sf::Color(123, 37, 25);
+}
 
 void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 {
@@ -28,7 +30,16 @@ void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 	for (auto& bullet : bullets)
 	{
 		bullet.positionPrevious = bullet.positionCurrent;
-		bullet.positionCurrent += bullet.direction * bullet.SPEED * fixedTimeStep;
+		bullet.positionCurrent += bullet.direction * bulletSpeed * fixedTimeStep;
+
+		// Check if the bullet has reached its maximum range
+		// If it has, explode at the current position and mark the bullet as having hit an enemy
+		if (Utility::distance(bullet.positionCurrent, position) >= attributes.at(level).range)
+		{
+			explodeAt(bullet.positionCurrent, enemies);
+			bullet.hasHitEnemy = true;
+			continue;
+		}
 
 		for (auto& enemy : enemies)
 		{
@@ -43,21 +54,28 @@ void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 	// Attempt to fire if ready
 	if (canFire())
 	{
-		const Enemy* target = Utility::getClosestEnemyInRange(position, enemies, attributes.at(level).range);
+		Enemy* target = Utility::getClosestEnemyInRange(position, enemies, attributes.at(level).range);
 
+		// If a valid target is found
 		if (target)
 		{
+			// Predict target intercept position
 			auto predictedPosOpt = Utility::predictTargetIntercept(
 				position,
 				target->getPixelPosition(),
 				target->getVelocity(),
-				Bullet::SPEED
+				bulletSpeed
 			);
 
 			if (predictedPosOpt.has_value())
 				fireAt(predictedPosOpt.value());
 			else
 				fireAt(target->getPixelPosition()); // Fallback to current position if prediction fails
+
+			// Add incoming splash damage to all enemies within predicted splash radius
+			for (auto& enemy : enemies)
+				if (Utility::distance(target->getPixelPosition(), enemy.getPixelPosition()) <= attributes.at(level).splashRadius)
+					target->addIncomingDamage(attributes.at(level).damage);
 		}
 	}
 

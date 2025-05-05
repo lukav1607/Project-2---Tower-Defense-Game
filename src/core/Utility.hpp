@@ -42,12 +42,19 @@ namespace Utility
 	// Predicts the intercept point of a target moving with constant velocity and a projectile moving with constant speed.
 	// Returns std::nullopt if the target is unreachable.
 	std::optional<sf::Vector2f> predictTargetIntercept(
-		const sf::Vector2f& shooterPosition,
-		const sf::Vector2f& targetPosition,
-		const sf::Vector2f& targetVelocity,
+		sf::Vector2f shooterPosition,
+		sf::Vector2f targetPosition,
+		sf::Vector2f targetVelocity,
 		float projectileSpeed);
 
-	const Enemy* getClosestEnemyInRange(const sf::Vector2f& origin, const std::vector<Enemy>& enemies, float range);
+	// Returns a pointer to the closest enemy within a specified range from the origin.
+	// If dontOverkill is true (default), it will only consider enemies that are not about
+	// to die (checks enemies for incoming damage).
+	Enemy* getClosestEnemyInRange(
+		sf::Vector2f origin,
+		std::vector<Enemy>& enemies,
+		float range,
+		bool dontOverkill = true);
 
 	// Blends two colors based on the alpha value of the overlay color.
 	sf::Color blendColors(sf::Color base, sf::Color overlay);

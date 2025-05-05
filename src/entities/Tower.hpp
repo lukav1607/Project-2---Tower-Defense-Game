@@ -50,6 +50,18 @@ protected:
 
 	inline bool canFire() const { return timeSinceLastShot >= attributes.at(level).fireRate; }
 
+	struct Bullet
+	{
+		bool hasHitEnemy = false;
+		sf::Vector2f positionCurrent;
+		sf::Vector2f positionPrevious;
+		sf::Vector2f direction;
+		sf::CircleShape shape;
+	};
+	std::vector<Bullet> bullets;
+	sf::Color bulletColor;
+	float bulletSpeed;
+
 	std::vector<TowerRegistry::AttributesPerLevel> attributes;
 
 	sf::Vector2f position;

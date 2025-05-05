@@ -12,9 +12,11 @@
 #include "../core/Utility.hpp"
 
 BulletTower::BulletTower(sf::Vector2i tilePosition) :
-	Tower(TowerRegistry::Type::Bullet, sf::Color(10, 92, 54), tilePosition),
-	bulletColor(sf::Color(5, 46, 27))
-{}
+	Tower(TowerRegistry::Type::Bullet, sf::Color(10, 92, 54), tilePosition)//,
+{
+	this->bulletSpeed = 900.f;
+	this->bulletColor = sf::Color(5, 46, 27);
+}
 
 void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 {
@@ -30,7 +32,7 @@ void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 	for (auto& bullet : bullets)
 	{
 		bullet.positionPrevious = bullet.positionCurrent;
-		bullet.positionCurrent += bullet.direction * bullet.SPEED * fixedTimeStep;
+		bullet.positionCurrent += bullet.direction * bulletSpeed * fixedTimeStep;
 
 		for (auto& enemy : enemies)
 		{
@@ -45,21 +47,26 @@ void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 	// Attempt to fire if ready
 	if (canFire())
 	{
-		const Enemy* target = Utility::getClosestEnemyInRange(position, enemies, attributes.at(level).range);
+		Enemy* target = Utility::getClosestEnemyInRange(position, enemies, attributes.at(level).range);
 
+		// If a valid target is found
 		if (target)
 		{
 			auto predictedPosOpt = Utility::predictTargetIntercept(
 				position,
 				target->getPixelPosition(),
 				target->getVelocity(),
-				Bullet::SPEED
+				bulletSpeed
 			);
 
+			// Predict target intercept position
 			if (predictedPosOpt.has_value())
 				fireAt(predictedPosOpt.value());
 			else
 				fireAt(target->getPixelPosition()); // Fallback to current position if prediction fails
+
+			// Add incoming splash damage to target enemy
+			target->addIncomingDamage(attributes.at(level).damage);
 		}
 	}
 }
@@ -80,9 +87,6 @@ void BulletTower::render(float interpolationFactor, sf::RenderWindow& window)
 
 void BulletTower::fireAt(sf::Vector2f target)
 {
-	/*if (target.x <= 0)
-		return;*/
-
 	Bullet bullet;
 
 	bullet.positionCurrent = position;

@@ -157,6 +157,16 @@ void Game::update(float fixedTimeStep)
 	{
 		updateWave(fixedTimeStep);		
 
+		for (auto& enemy : enemies)
+		{
+			enemy.update(fixedTimeStep, grid);
+
+			if (enemy.hasReachedEnd())
+				lives--;
+			if (enemy.isDead())
+				*gold += enemy.getWorth();
+		}
+
 		for (auto& tower : towers)
 		{
 			tower->update(fixedTimeStep, enemies);
@@ -170,15 +180,6 @@ void Game::update(float fixedTimeStep)
 			{
 				*gold += tower->getAttributes().at(tower->getLevel()).sellCost;
 			}
-		}
-		for (auto& enemy : enemies)
-		{
-			enemy.update(fixedTimeStep, grid);
-
-			if (enemy.hasReachedEnd())
-				lives--;
-			if (enemy.isDead())
-				*gold += enemy.getWorth();
 		}
 
 		// Remove towers that are sold

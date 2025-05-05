@@ -24,6 +24,7 @@ Enemy::Enemy(sf::Vector2i spawnTile, float speed, int health) :
 	damageFlashDuration(0.1f),
 	flashColor(sf::Color::White),
 	health(health),
+	incomingDamage(0),
 	m_hasReachedEnd(false),
 	isRunningDeathEffect(false)
 {
@@ -66,6 +67,7 @@ void Enemy::update(float fixedTimeStep, const Grid& grid)
 	}
 
 	updateStatusEffects(fixedTimeStep);
+	resetIncomingDamage();
 
 	// Update damage flash effect
 	if (damageFlashTimer > 0.f)

@@ -50,11 +50,16 @@ public:
 
 	void applyStatusEffect(const StatusEffect& effect);
 	void updateStatusEffects(float fixedTimeStep);
+
 	void takeDamage(int damage);
+	inline void addIncomingDamage(int dmg) { incomingDamage += dmg; }
+	inline void resetIncomingDamage() { incomingDamage = 0; }
+	inline int getIncomingDamage() const { return incomingDamage; }
 
 	inline bool isDead() const { return health <= 0 && !isRunningDeathEffect; }
 	inline bool hasReachedEnd() const { return m_hasReachedEnd; }
 	inline bool hasStartedPath() const { return positionCurrent.x > 0; }
+	inline int getHealth() const { return health; }
 	inline int getWorth() const { return worth; }
 	inline sf::Vector2f getPixelPosition() const { return positionCurrent; }
 	inline sf::Vector2f getVelocity() const { return direction * currentSpeed; }
@@ -89,6 +94,7 @@ private:
 	bool m_hasReachedEnd;
 
 	int health;
+	int incomingDamage;
 	int worth;
 
 	std::vector<DeathEffect> deathEffects;

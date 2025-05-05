@@ -53,9 +53,9 @@ sf::Vector2f Utility::angleToVector(float angleDegrees)
 }
 
 std::optional<sf::Vector2f> Utility::predictTargetIntercept(
-	const sf::Vector2f& shooterPosition,
-	const sf::Vector2f& targetPosition,
-	const sf::Vector2f& targetVelocity,
+	sf::Vector2f shooterPosition,
+	sf::Vector2f targetPosition,
+	sf::Vector2f targetVelocity,
 	float projectileSpeed)
 {
 	// Calculate the relative position and velocity vectors
@@ -87,14 +87,27 @@ std::optional<sf::Vector2f> Utility::predictTargetIntercept(
 	return targetPosition + targetVelocity * t;
 }
 
-const Enemy* Utility::getClosestEnemyInRange(const sf::Vector2f& origin, const std::vector<Enemy>& enemies, float range)
+Enemy* Utility::getClosestEnemyInRange(
+	sf::Vector2f origin,
+	std::vector<Enemy>& enemies,
+	float range,
+	bool dontOverkill)
 {
-	const Enemy* closestEnemy = nullptr;
+	Enemy* closestEnemy = nullptr;
 	float closestDistanceSq = range * range;
 
-	for (const auto& enemy : enemies)
+	for (auto& enemy : enemies)
 	{
-		if (enemy.isDead()) continue;
+		// Skip dead enemies
+		if (enemy.isDead())
+			continue;
+
+		if (dontOverkill)
+		{
+			int effectiveHealth = enemy.getHealth() - enemy.getIncomingDamage();
+			if (effectiveHealth <= 0)
+				continue;
+		}
 
 		float distanceSq = Utility::distanceSquared(origin, enemy.getPixelPosition());
 		if (distanceSq <= closestDistanceSq)
@@ -103,7 +116,6 @@ const Enemy* Utility::getClosestEnemyInRange(const sf::Vector2f& origin, const s
 			closestEnemy = &enemy;
 		}
 	}
-
 	return closestEnemy;
 }
 
