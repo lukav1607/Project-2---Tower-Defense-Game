@@ -92,10 +92,7 @@ void Enemy::update(float fixedTimeStep, const Grid& grid)
 	positionPrevious = positionCurrent;
 	positionCurrent += direction * currentSpeed * fixedTimeStep;
 	if (positionCurrent.x >= (grid.getSize().x * Grid::TILE_SIZE) + size )
-	{
 		m_hasReachedEnd = true;
-		std::cout << "Enemy reached the end!" << std::endl;
-	}
 }
 
 void Enemy::render(float interpolationFactor, sf::RenderWindow& window)
