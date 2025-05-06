@@ -31,6 +31,16 @@ int Utility::randomNumber(int min, int max)
 	return dis(gen);
 }
 
+float Utility::randomPitch(float variationPercent)
+{
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_real_distribution<float> dist(-0.5f, 0.5f);
+
+	float randomFactor = dist(gen);
+	return 1.0f + randomFactor * 2.0f * variationPercent;
+}
+
 sf::Vector2f Utility::interpolate(sf::Vector2f previous, sf::Vector2f current, float factor)
 {
 	return previous * (1.f - factor) + current * factor;

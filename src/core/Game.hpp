@@ -16,6 +16,7 @@
 #include "../entities/Enemy.hpp"
 #include "../entities/Tower.hpp"
 #include "../ui/UIManager.hpp"
+#include "../audio/SoundManager.hpp"
 
 class Game
 {
@@ -82,4 +83,6 @@ private:
 	sf::Text gameOverText;
 	sf::Text gameOverWaveText;
 	sf::Text restartText;
+
+	SoundManager soundManager;
 };

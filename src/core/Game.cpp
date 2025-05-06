@@ -81,6 +81,8 @@ Game::Game() :
 	restartText.setOutlineColor(sf::Color(50, 53, 55));
 	restartText.setOrigin({ restartText.getGlobalBounds().size.x / 2.f, restartText.getGlobalBounds().size.y / 2.f });
 	restartText.setPosition(startText.getPosition());
+
+	soundManager.loadSounds();
 }
 
 int Game::run()
@@ -209,6 +211,8 @@ void Game::update(float fixedTimeStep)
 	}
 	case GameState::Gameplay:
 	{
+		static int updateCount = 0;
+
 		updateWave(fixedTimeStep);		
 
 		for (auto& enemy : enemies)
@@ -216,23 +220,32 @@ void Game::update(float fixedTimeStep)
 			enemy.update(fixedTimeStep, grid);
 
 			if (enemy.hasReachedEnd())
+			{
 				lives--;
+				soundManager.playSound(SoundManager::SoundID::LIFE_LOST);
+			}
 			if (enemy.isDead())
+			{
 				*gold += enemy.getWorth();
+			}
 		}
 
 		for (auto& tower : towers)
 		{
-			tower->update(fixedTimeStep, enemies);
+			tower->update(fixedTimeStep, enemies, soundManager);
 
 			if (tower->isMarkedForUpgrade())
 			{
 				if (tower->tryUpgrade(*gold))
+				{
 					*gold -= tower->getAttributes().at(tower->getLevel()).buyCost;
+					soundManager.playSound(SoundManager::SoundID::TOWER_UPGRADE);
+				}
 			}
 			if (tower->isMarkedForSale())
 			{
 				*gold += tower->getAttributes().at(tower->getLevel()).sellCost;
+				soundManager.playSound(SoundManager::SoundID::BUTTON_CLICK);
 			}
 		}
 
@@ -276,11 +289,17 @@ void Game::update(float fixedTimeStep)
 			}
 			}
 			*gold -= towers.back()->getAttributes().at(0).buyCost;
+			soundManager.playSound(SoundManager::SoundID::BUTTON_CLICK);
 			ui.dismissAllMenus();
 			grid.deselectAllTiles();
 		}
 
 		ui.update(fixedTimeStep, lives, *gold, wave);
+
+		if (updateCount % 60 == 0) {
+			soundManager.cleanupSounds();
+		}
+		updateCount++;
 
 		if (lives <= 0)
 			switchGameState(GameState::GameOver);
@@ -331,7 +350,7 @@ void Game::render(float interpolationFactor)
 
 void Game::updateWave(float fixedTimeStep)
 {
-	static int healthModifier = 0;
+	//static int healthModifier = 0;
 
 	timeSinceLastEnemySpawned += fixedTimeStep;
 
@@ -339,14 +358,16 @@ void Game::updateWave(float fixedTimeStep)
 	{
 		if (enemiesSpawnedThisWave == 0 && !waitingForFirstEnemyInWave)
 		{
+			soundManager.playSound(SoundManager::SoundID::NEW_WAVE);
+
 			wave++;
 			timeBetweenEnemies -= 0.01f;
 			enemiesPerWave++;
 
-			if (wave % 2 == 0)
+			/*if (wave % 2 == 0)
 			{
 				healthModifier++;
-			}
+			}*/
 			waitingForFirstEnemyInWave = true;
 		}
 
@@ -356,7 +377,7 @@ void Game::updateWave(float fixedTimeStep)
 			timeSinceLastEnemySpawned = 0.f;
 			enemiesSpawnedThisWave++;
 
-			enemies.emplace_back(grid.getStartTile(), Enemy::BASE_SPEED + wave, Enemy::BASE_HEALTH + healthModifier);
+			enemies.emplace_back(grid.getStartTile(), Enemy::BASE_SPEED + wave * 0.15f, Enemy::BASE_HEALTH + wave / 3.f);
 		}
 
 		if (enemiesSpawnedThisWave >= enemiesPerWave)
@@ -403,7 +424,7 @@ void Game::resetGame()
 
 void Game::switchGameState(GameState newGameState)
 {
-	// TODO: Implement state transition logic
+	soundManager.playSound(SoundManager::SoundID::BUTTON_CLICK);
 
 	switch (gameState)
 	{

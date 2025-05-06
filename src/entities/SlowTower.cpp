@@ -16,7 +16,7 @@ SlowTower::SlowTower(sf::Vector2i tilePosition) :
 	pulseTimer(0.f)
 {}
 
-void SlowTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
+void SlowTower::update(float fixedTimeStep, std::vector<Enemy>& enemies, SoundManager& soundManager)
 {
 	timeSinceLastShot += fixedTimeStep;
 
@@ -35,6 +35,8 @@ void SlowTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 
 	if (enemiesInRange && timeSinceLastShot >= attributes.at(level).fireRate)
 	{
+		soundManager.playSound(SoundManager::SoundID::SLOW_PULSE, 0.1f);
+
 		timeSinceLastShot = 0.f;
 		
 		isPulsing = true;

@@ -24,6 +24,10 @@ namespace Utility
 	float randomNumber(float min, float max);
 	int randomNumber(int min, int max);
 
+	// Generates a random pitch value based on a given variation percentage.
+	// Example use: variationPercent 0.15f == 15% variation
+	float randomPitch(float variationPercent);
+
 	// Interpolates between two vectors based on a factor (0.0 to 1.0).
 	sf::Vector2f interpolate(sf::Vector2f previous, sf::Vector2f current, float factor);
 

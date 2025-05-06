@@ -17,7 +17,7 @@ SplashTower::SplashTower(sf::Vector2i tilePosition) :
 	this->bulletColor = sf::Color(123, 37, 25);
 }
 
-void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
+void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies, SoundManager& soundManager)
 {
 	timeSinceLastShot += fixedTimeStep;
 
@@ -39,6 +39,7 @@ void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 		{
 			explodeAt(bullet.positionCurrent, enemies);
 			bullet.hasHitEnemy = true;
+			soundManager.playSound(SoundManager::SoundID::SPLASH_EXPLODE, 0.1f);
 			continue;
 		}
 
@@ -48,6 +49,7 @@ void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 			{
 				explodeAt(bullet.positionCurrent, enemies);
 				bullet.hasHitEnemy = true;
+				soundManager.playSound(SoundManager::SoundID::SPLASH_EXPLODE, 0.1f);
 				break;
 			}
 		}
@@ -72,6 +74,8 @@ void SplashTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 				fireAt(predictedPosOpt.value());
 			else
 				fireAt(target->getPixelPosition()); // Fallback to current position if prediction fails
+
+			soundManager.playSound(SoundManager::SoundID::SPLASH_SHOOT, 0.1f);
 
 			// Add incoming splash damage to all enemies within predicted splash radius
 			for (auto& enemy : enemies)

@@ -15,6 +15,7 @@
 #include "../core/Utility.hpp"
 #include "TowerRegistry.hpp"
 #include "Enemy.hpp"
+#include "../audio/SoundManager.hpp"
 
 class Tower
 {
@@ -24,7 +25,7 @@ public:
 	Tower& operator=(const Tower&) = default;
 	virtual ~Tower() = default;
 
-	virtual void update(float fixedTimeStep, std::vector<Enemy>& enemies) = 0;
+	virtual void update(float fixedTimeStep, std::vector<Enemy>& enemies, SoundManager& soundManager) = 0;
 	virtual void render(float interpolationFactor, sf::RenderWindow& window) = 0;
 
 	bool tryUpgrade(int gold);

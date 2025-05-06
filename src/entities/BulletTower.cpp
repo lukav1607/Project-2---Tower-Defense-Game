@@ -18,7 +18,7 @@ BulletTower::BulletTower(sf::Vector2i tilePosition) :
 	this->bulletColor = sf::Color(5, 46, 27);
 }
 
-void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
+void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies, SoundManager& soundManager)
 {
 	timeSinceLastShot += fixedTimeStep;
 
@@ -40,6 +40,7 @@ void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 			{
 				enemy.takeDamage(attributes.at(level).damage);
 				bullet.hasHitEnemy = true;
+				soundManager.playSound(SoundManager::SoundID::ENEMY_HIT, 0.15f);
 				break;
 			}
 		}
@@ -64,6 +65,8 @@ void BulletTower::update(float fixedTimeStep, std::vector<Enemy>& enemies)
 				fireAt(predictedPosOpt.value());
 			else
 				fireAt(target->getPixelPosition()); // Fallback to current position if prediction fails
+
+			soundManager.playSound(SoundManager::SoundID::BULLET_SHOOT, 0.15f);
 
 			// Add incoming splash damage to target enemy
 			target->addIncomingDamage(attributes.at(level).damage);

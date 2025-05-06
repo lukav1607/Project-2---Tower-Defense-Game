@@ -19,7 +19,7 @@ public:
 	SplashTower(const SplashTower&) = default;
 	SplashTower& operator=(const SplashTower&) = default;
 
-	void update(float fixedTimeStep, std::vector<Enemy>& enemies) override;
+	void update(float fixedTimeStep, std::vector<Enemy>& enemies, SoundManager& soundManager) override;
 	void render(float interpolationFactor, sf::RenderWindow& window) override;
 
 private:
