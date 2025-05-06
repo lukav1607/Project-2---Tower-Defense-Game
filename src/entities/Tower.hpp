@@ -19,7 +19,7 @@
 class Tower
 {
 public:
-	Tower(TowerRegistry::Type type, sf::Color color, sf::Vector2i tilePosition);
+	Tower(TowerRegistry::Type type, sf::Color color, sf::Color color2, sf::Color color3, sf::Vector2i tilePosition);
 	Tower(const Tower&) = default;
 	Tower& operator=(const Tower&) = default;
 	virtual ~Tower() = default;
@@ -32,6 +32,7 @@ public:
 	inline void markForSale() { m_isMarkedForSale = true; }
 	inline void setRangeCircleVisible(bool isVisible) { isRangeCircleVisible = isVisible; }
 
+	inline const TowerRegistry::Type& getType() const { return type; }
 	inline const std::string& getName() const {	return TowerRegistry::getTowerMetadataRegistry()[static_cast<int>(type)].name; }
 	const std::vector<TowerRegistry::AttributesPerLevel>& getAttributes() const { return attributes; }
 
@@ -72,6 +73,8 @@ protected:
 	int level;
 
 	sf::RectangleShape shape;
+	sf::RectangleShape shape2;
+	sf::RectangleShape shape3;
 	sf::CircleShape rangeCircle;
 	bool isRangeCircleVisible;
 	sf::Color towerColor;

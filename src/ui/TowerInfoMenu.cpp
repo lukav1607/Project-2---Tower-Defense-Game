@@ -67,7 +67,7 @@ void TowerInfoMenu::update(float fixedTimeStep)
 		needsTextUpdate = false;
 	}
 	if (selectedTower->getLevel() < selectedTower->getMaxLevel() &&
-		*gold >= selectedTower->getAttributes().at(selectedTower->getLevel() + 1).buyCost)
+		*gold >= selectedTower->getAttributes().at(static_cast<size_t>(selectedTower->getLevel() + 1)).buyCost)
 	{
 		upgradeButton.setIsActive(true);
 	}
@@ -130,6 +130,9 @@ void TowerInfoMenu::updateInfoText()
 	std::string damageAppend;
 	std::string rangeAppend;
 	std::string fireRateAppend;
+	std::string splashRadiusAppend;
+	std::string slowAmountAppend;
+	std::string slowDurationAppend;
 
 	int level = selectedTower->getLevel();
 	sellButton.setText("SELL\n" + std::to_string(selectedTower->getAttributes().at(level).sellCost) + "g");
@@ -148,6 +151,9 @@ void TowerInfoMenu::updateInfoText()
 			damageAppend = " > " + std::to_string(selectedTower->getAttributes().at(nextLevel).damage);
 			rangeAppend = " > " + std::to_string(static_cast<int>(selectedTower->getAttributes().at(nextLevel).range));
 			fireRateAppend = " > " + Utility::removeTrailingZeros(selectedTower->getAttributes().at(nextLevel).fireRate);
+			splashRadiusAppend = " > " + Utility::removeTrailingZeros(selectedTower->getAttributes().at(nextLevel).splashRadius);
+			slowAmountAppend = " > " + std::to_string(static_cast<int>(selectedTower->getAttributes().at(nextLevel).slowAmount * 100.f)) + "%";
+			slowDurationAppend = " > " + Utility::removeTrailingZeros(selectedTower->getAttributes().at(nextLevel).slowDuration) + "s";
 		}
 	}
 	else if (selectedTower->getLevel() >= selectedTower->getMaxLevel())
@@ -155,10 +161,29 @@ void TowerInfoMenu::updateInfoText()
 		upgradeButton.setText("UPGRADE\nN/A");
 	}
 
-	ss << "Level: " << level + 1 << levelAppend << "\n"
-		<< "Damage: " << selectedTower->getAttributes().at(level).damage << damageAppend << "\n"
-		<< "Range: " << static_cast<int>(selectedTower->getAttributes().at(level).range) << rangeAppend << "\n"
-		<< "Fire Rate: " << selectedTower->getAttributes().at(level).fireRate << fireRateAppend;
+	if (selectedTower->getType() == TowerRegistry::Type::Bullet)
+	{
+		ss << "Level: " << level + 1 << levelAppend << "\n"
+			<< "Damage: " << selectedTower->getAttributes().at(level).damage << damageAppend << "\n"
+			<< "Range: " << static_cast<int>(selectedTower->getAttributes().at(level).range) << rangeAppend << "\n"
+			<< "Fire Rate: " << selectedTower->getAttributes().at(level).fireRate << fireRateAppend;
+	}
+	else if (selectedTower->getType() == TowerRegistry::Type::Splash)
+	{
+		ss << "Level: " << level + 1 << levelAppend << "\n"
+			<< "Damage: " << selectedTower->getAttributes().at(level).damage << damageAppend << "\n"
+			<< "Range: " << static_cast<int>(selectedTower->getAttributes().at(level).range) << rangeAppend << "\n"
+			<< "Fire Rate: " << selectedTower->getAttributes().at(level).fireRate << fireRateAppend << "\n"
+			<< "Splash Radius: " << selectedTower->getAttributes().at(level).splashRadius << splashRadiusAppend;
+	}
+	else if (selectedTower->getType() == TowerRegistry::Type::Slow)
+	{
+		ss << "Level: " << level + 1 << levelAppend << "\n"
+			<< "Range: " << static_cast<int>(selectedTower->getAttributes().at(level).range) << rangeAppend << "\n"
+			<< "Pulse Rate: " << selectedTower->getAttributes().at(level).fireRate << fireRateAppend << "\n"
+			<< "Percent: " << static_cast<int>(selectedTower->getAttributes().at(level).slowAmount * 100.f) << "%" << slowAmountAppend << "\n"
+			<< "Duration: " << selectedTower->getAttributes().at(level).slowDuration << "s" << slowDurationAppend;
+	}
 
 	infoText.setString(ss.str());
 }

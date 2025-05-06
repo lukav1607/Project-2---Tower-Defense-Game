@@ -25,23 +25,10 @@ public:
 private:
 	void fireAt(sf::Vector2f target) override;
 	void explodeAt(sf::Vector2f location, std::vector<Enemy>& enemies);
-
-	//struct Bullet
-	//{
-	//	float speed = 400.f;
-	//	bool hasHitEnemy = false;
-	//	sf::Vector2f positionCurrent;
-	//	sf::Vector2f positionPrevious;
-	//	sf::Vector2f direction;
-	//	sf::CircleShape shape;
-	//	sf::Color color;
-	//};
-	//std::vector<Bullet> bullets;
-	////sf::Color bulletColor; 
-	
+		
 	std::vector<sf::CircleShape> explosions;
 	std::vector<float> explosionTimers;
 
 	const float EXPLOSION_DURATION = 0.3f;
-	sf::Color explosionColor = sf::Color(255, 100, 0, 150); // orange-ish
+	sf::Color explosionColor;
 };

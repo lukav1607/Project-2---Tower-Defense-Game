@@ -40,6 +40,7 @@ private:
 
 	void updateWave(float fixedTimeStep);
 	void deselectAllTowers();
+	void resetGame();
 
 	// Loop and state management
 	GameState gameState;
@@ -53,6 +54,8 @@ private:
 	bool isVSyncEnabled;
 
 	// Gameplay data
+	const int STARTING_LIVES = 5;
+	const int STARTING_GOLD = 100;
 	int lives;
 	std::shared_ptr<int> gold;
 
@@ -73,4 +76,10 @@ private:
 
 	sf::Font font;
 	UIManager ui;
+	sf::Text titleText;
+	sf::Text startText;
+	sf::Text authorText;
+	sf::Text gameOverText;
+	sf::Text gameOverWaveText;
+	sf::Text restartText;
 };

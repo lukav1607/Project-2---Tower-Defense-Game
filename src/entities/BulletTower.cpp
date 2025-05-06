@@ -12,7 +12,7 @@
 #include "../core/Utility.hpp"
 
 BulletTower::BulletTower(sf::Vector2i tilePosition) :
-	Tower(TowerRegistry::Type::Bullet, sf::Color(10, 92, 54), tilePosition)//,
+	Tower(TowerRegistry::Type::Bullet, sf::Color(8, 74, 44), sf::Color(9, 83, 49), sf::Color(10, 92, 54), tilePosition)
 {
 	this->bulletSpeed = 900.f;
 	this->bulletColor = sf::Color(5, 46, 27);
@@ -77,6 +77,10 @@ void BulletTower::render(float interpolationFactor, sf::RenderWindow& window)
 		window.draw(rangeCircle);
 
 	window.draw(shape);
+	if (level > 0)
+		window.draw(shape2);
+	if (level > 1)
+		window.draw(shape3);
 
 	for (auto& bullet : bullets)
 	{

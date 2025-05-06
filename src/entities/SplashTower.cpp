@@ -10,7 +10,8 @@
 #include "SplashTower.hpp"
 
 SplashTower::SplashTower(sf::Vector2i tilePosition) :
-	Tower(TowerRegistry::Type::Splash, sf::Color(255, 75, 51), tilePosition)
+	Tower(TowerRegistry::Type::Splash, sf::Color(205, 65, 43), sf::Color(225, 70, 47), sf::Color(255, 75, 51), tilePosition),
+	explosionColor(sf::Color(255, 75, 51, 200))
 {
 	this->bulletSpeed = 300.f;
 	this->bulletColor = sf::Color(123, 37, 25);
@@ -108,6 +109,10 @@ void SplashTower::render(float interpolationFactor, sf::RenderWindow& window)
 		window.draw(rangeCircle);
 
 	window.draw(shape);
+	if (level > 0)
+		window.draw(shape2);
+	if (level > 1)
+		window.draw(shape3);
 
 	for (auto& bullet : bullets)
 	{

@@ -24,7 +24,7 @@ const float UIManager::BACKGROUND_OUTLINE_THICKNESS = 3.f;
 
 UIManager::UIManager(const sf::Font& font, sf::Vector2u windowSize, const std::shared_ptr<int>& gold) :
 	hud(font, { 1200, 1200 }),
-	towerInfoMenu(font, "Tower Info", { 300.f, 275.f }, gold),
+	towerInfoMenu(font, "Tower Info", { 300.f, 300.f }, gold),
 	towerBuildMenu(font, "Choose a Tower to Build", { 620.f, 300.f }, gold)
 {}
 

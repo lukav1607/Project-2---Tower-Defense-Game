@@ -20,25 +20,67 @@ Game::Game() :
 	isRunning(true),
 	antiAliasingLevel(8),
 	isVSyncEnabled(true),
-	gameState(GameState::Gameplay),
-	lives(5),
-	gold(std::make_shared<int>(200)),
+	gameState(GameState::MainMenu),
+	lives(STARTING_LIVES),
+	gold(std::make_shared<int>(STARTING_GOLD)),
 	grid(10, 8),
 	timeBetweenWaves(10.f),
 	timeSinceLastWaveEnded(10.f),
-	timeBetweenEnemies(0.75f),
+	timeBetweenEnemies(0.7f),
 	timeSinceLastEnemySpawned(0.f),
 	wave(0),
 	enemiesPerWave(5),
 	enemiesSpawnedThisWave(0),
 	waitingForFirstEnemyInWave(false),
 	font("assets/fonts/BRLNSR.TTF"),
-	ui(font, WINDOW_SIZE, gold)
+	ui(font, WINDOW_SIZE, gold),
+	titleText(font, "Tower Defense", 128U),
+	startText(font, "Press ENTER to start", 64U),
+	authorText(font, "Luka Vukorepa 2025", 32U),
+	gameOverText(font, "Game Over!", 104U),
+	gameOverWaveText(font, "Reached wave: ", 64U),
+	restartText(font, "Press ENTER to return to Main Menu", 64U)
 {
 	auto settings = sf::ContextSettings();
 	settings.antiAliasingLevel = antiAliasingLevel;
 	window.create(sf::VideoMode(WINDOW_SIZE), WINDOW_TITLE, sf::Style::Close, sf::State::Windowed, settings);
 	window.setVerticalSyncEnabled(isVSyncEnabled);
+
+	titleText.setFillColor(sf::Color(255, 255, 255));
+	titleText.setOutlineThickness(2.f);
+	titleText.setOutlineColor(sf::Color(50, 53, 55));
+	titleText.setOrigin({ titleText.getGlobalBounds().size.x / 2.f, titleText.getGlobalBounds().size.y / 2.f });
+	titleText.setPosition({ WINDOW_SIZE.x / 2.f, WINDOW_SIZE.y / 2.f - 100.f });
+
+	startText.setFillColor(sf::Color(255, 255, 255));
+	startText.setOutlineThickness(2.f);
+	startText.setOutlineColor(sf::Color(50, 53, 55));
+	startText.setOrigin({ startText.getGlobalBounds().size.x / 2.f, startText.getGlobalBounds().size.y / 2.f });
+	startText.setPosition({ WINDOW_SIZE.x / 2.f, WINDOW_SIZE.y / 2.f + 100.f });
+
+	authorText.setFillColor(sf::Color(255, 255, 255));
+	authorText.setOutlineThickness(2.f);
+	authorText.setOutlineColor(sf::Color(50, 53, 55));
+	authorText.setOrigin({ authorText.getGlobalBounds().size.x / 2.f, authorText.getGlobalBounds().size.y / 2.f });
+	authorText.setPosition({ WINDOW_SIZE.x / 2.f, WINDOW_SIZE.y - authorText.getGlobalBounds().size.y * 2.f });
+
+	gameOverText.setFillColor(sf::Color(255, 255, 255));
+	gameOverText.setOutlineThickness(2.f);
+	gameOverText.setOutlineColor(sf::Color(50, 53, 55));
+	gameOverText.setOrigin({ gameOverText.getGlobalBounds().size.x / 2.f, gameOverText.getGlobalBounds().size.y / 2.f });
+	gameOverText.setPosition(titleText.getPosition() - sf::Vector2f(0.f, 50.f));
+
+	gameOverWaveText.setFillColor(sf::Color(255, 255, 255));
+	gameOverWaveText.setOutlineThickness(2.f);
+	gameOverWaveText.setOutlineColor(sf::Color(50, 53, 55));
+	gameOverWaveText.setOrigin({ gameOverWaveText.getGlobalBounds().size.x / 2.f, gameOverWaveText.getGlobalBounds().size.y / 2.f });
+	gameOverWaveText.setPosition(titleText.getPosition() + sf::Vector2f(0.f, 50.f));
+
+	restartText.setFillColor(sf::Color(255, 255, 255));
+	restartText.setOutlineThickness(2.f);
+	restartText.setOutlineColor(sf::Color(50, 53, 55));
+	restartText.setOrigin({ restartText.getGlobalBounds().size.x / 2.f, restartText.getGlobalBounds().size.y / 2.f });
+	restartText.setPosition(startText.getPosition());
 }
 
 int Game::run()
@@ -75,11 +117,19 @@ void Game::processInput()
 			isRunning = false;
 		}
 	}
+	if (Utility::isKeyReleased(sf::Keyboard::Key::Escape))
+	{
+		isRunning = false;
+	}
 
 	switch (gameState)
 	{
 	case GameState::MainMenu:
 	{
+		if (Utility::isKeyReleased(sf::Keyboard::Key::Enter))
+		{
+			switchGameState(GameState::Gameplay);
+		}
 		break;
 	}
 	case GameState::Gameplay:
@@ -140,6 +190,10 @@ void Game::processInput()
 	}
 	case GameState::GameOver:
 	{
+		if (Utility::isKeyReleased(sf::Keyboard::Key::Enter))
+		{
+			switchGameState(GameState::MainMenu);
+		}
 		break;
 	}
 	}
@@ -228,6 +282,9 @@ void Game::update(float fixedTimeStep)
 
 		ui.update(fixedTimeStep, lives, *gold, wave);
 
+		if (lives <= 0)
+			switchGameState(GameState::GameOver);
+
 		break;
 	}
 	case GameState::GameOver:
@@ -244,6 +301,9 @@ void Game::render(float interpolationFactor)
 	switch (gameState)
 	{
 	case GameState::MainMenu:
+		window.draw(titleText);
+		window.draw(startText);
+		window.draw(authorText);
 		break;
 
 	case GameState::Gameplay:
@@ -260,6 +320,9 @@ void Game::render(float interpolationFactor)
 		break;
 
 	case GameState::GameOver:
+		window.draw(gameOverText);
+		window.draw(gameOverWaveText);
+		window.draw(restartText);
 		break;
 	}
 
@@ -268,16 +331,6 @@ void Game::render(float interpolationFactor)
 
 void Game::updateWave(float fixedTimeStep)
 {
-	/*
-	float timeBetweenWaves;
-	float timeSinceLastWaveEnded;
-	float timeBetweenEnemies;
-	float timeSinceLastEnemySpawned;
-	int wave;
-	int enemiesPerWave;
-	int enemiesSpawnedThisWave;
-	bool waitingForFirstEnemyInWave;
-	*/
 	static int healthModifier = 0;
 
 	timeSinceLastEnemySpawned += fixedTimeStep;
@@ -288,11 +341,9 @@ void Game::updateWave(float fixedTimeStep)
 		{
 			wave++;
 			timeBetweenEnemies -= 0.01f;
+			enemiesPerWave++;
+
 			if (wave % 2 == 0)
-			{
-				enemiesPerWave++;
-			}
-			if (wave % 5 == 0)
 			{
 				healthModifier++;
 			}
@@ -326,6 +377,30 @@ void Game::deselectAllTowers()
 		tower->isSelected = false;
 }
 
+void Game::resetGame()
+{
+	ui.dismissAllMenus();
+	grid.deselectAllTiles();
+	deselectAllTowers();
+
+	towers.clear();
+	enemies.clear();
+
+	timeBetweenWaves = 10.f;
+	timeSinceLastWaveEnded = 10.f;
+	timeBetweenEnemies = 0.7f;
+	timeSinceLastEnemySpawned = 0.f;
+	wave = 0;
+	enemiesPerWave = 5;
+	enemiesSpawnedThisWave = 0;
+	waitingForFirstEnemyInWave = false;
+
+	lives = STARTING_LIVES;
+	*gold = STARTING_GOLD;
+
+	grid.generateNewRandomLevel(10, 8);
+}
+
 void Game::switchGameState(GameState newGameState)
 {
 	// TODO: Implement state transition logic
@@ -337,6 +412,8 @@ void Game::switchGameState(GameState newGameState)
 		break;
 
 	case GameState::Gameplay:
+		gameOverWaveText.setString("Reached wave: " + std::to_string(wave));
+		resetGame();
 		gameState = newGameState;
 		break;
 

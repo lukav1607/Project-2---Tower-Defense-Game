@@ -64,7 +64,7 @@ TowerBuildMenu::TowerBuildMenu(const sf::Font& font, const std::string& title, s
 			(
 				"Damage: " + std::to_string(metadata.attributes[0].damage) +
 				"\nRange: " + std::to_string(static_cast<int>(metadata.attributes[0].range)) +
-				"\nFire Rate: " + Utility::removeTrailingZeros(metadata.attributes[0].fireRate) +
+				"\nPulse Rate: " + Utility::removeTrailingZeros(metadata.attributes[0].fireRate) +
 				"\nPercent: " + std::to_string(static_cast<int>(metadata.attributes[0].slowAmount * 100.f)) + "%" +
 				"\nDuration: " + Utility::removeTrailingZeros(metadata.attributes[0].slowDuration) + "s"
 			);

@@ -10,7 +10,7 @@
 #include "SlowTower.hpp"
 
 SlowTower::SlowTower(sf::Vector2i tilePosition) :
-	Tower(TowerRegistry::Type::Slow, sf::Color(10, 73, 106), tilePosition),
+	Tower(TowerRegistry::Type::Slow, sf::Color(8, 60, 86), sf::Color(9, 66, 96), sf::Color(10, 73, 106), tilePosition),
 	effectOverlayColor(sf::Color(54, 139, 193, 123)),
 	isPulsing(false),
 	pulseTimer(0.f)
@@ -85,6 +85,10 @@ void SlowTower::render(float interpolationFactor, sf::RenderWindow& window)
 		window.draw(rangeCircle);
 
 	window.draw(shape);
+	if (level > 0)
+		window.draw(shape2);
+	if (level > 1)
+		window.draw(shape3);
 }
 
 void SlowTower::fireAt(sf::Vector2f target)

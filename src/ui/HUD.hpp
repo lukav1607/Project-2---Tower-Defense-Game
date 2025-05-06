@@ -26,4 +26,5 @@ private:
 	sf::Text livesText;
 	sf::Text goldText;
 	sf::Text waveText;
+	sf::Text infoText;
 };
