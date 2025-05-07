@@ -1,6 +1,6 @@
 # Tower Defense Game
 
-A simple Tower Defense game built with C++ and SFML 3.0.0.
+A simple Tower Defense game built in the course of one week with C++ and SFML.
 The goal is to survive waves of enemies by strategically placing towers that attack and destroy them before they reach the end of the path.
 
 ## 🎮 Gameplay Overview
@@ -30,7 +30,7 @@ To run the project locally:
 bash
 Copy
 Edit
-git clone https://github.com/lukav1607/Project_2_Tower_Defense_Game.git
+git clone https://github.com/lukav1607/Tower-Defense.git
 ```
 2. Open the project with Visual Studio (or your preferred IDE).
 3. Make sure you have SFML 3.0.0 installed and linked properly.
