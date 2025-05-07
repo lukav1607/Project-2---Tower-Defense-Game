@@ -1,7 +1,7 @@
 # Tower Defense Game
 
 A simple Tower Defense game built with C++ and SFML 3.0.0.
-The goal is to survive waves of enemies by strategically placing towers that attack and destroy them before they reach your base.
+The goal is to survive waves of enemies by strategically placing towers that attack and destroy them before they reach the end of the path.
 
 ## 🎮 Gameplay Overview
 - Build towers to defend your base
@@ -11,18 +11,19 @@ The goal is to survive waves of enemies by strategically placing towers that att
 
 ## 🚀 Features
 - Basic tower placement system
+- Towers can be upgraded
 - Enemy movement along a fixed path
 - Towers automatically attack enemies in range
 - Simple wave progression and difficulty scaling
 - Player resources: health and money
 - Minimalistic UI showing lives, money, and wave number
 
-## 🛠️ Built With
+## 🛠️ Made With
 C++
 
 [SFML 3.0.0](https://www.sfml-dev.org/)
 
-## 📦 Getting Started
+## 📦 Build and Run
 To run the project locally:
 1. Clone the repository:
 ```
